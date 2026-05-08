@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Golf" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+  <title>Golf · Pete · Eric · Jim</title>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">⛳️</span>
+      <span class="brand-text">Golf</span>
+    </div>
+    <nav class="nav">
+      <a href="#/season" data-route="season">Season</a>
+      <a href="#/lifetime" data-route="lifetime">Lifetime</a>
+      <a href="#/all-years" data-route="all-years">All Years</a>
+      <a href="#/settings" data-route="settings" id="settings-link" class="settings-link hidden" aria-label="Settings">⚙</a>
+    </nav>
+  </header>
+
+  <main id="app"></main>
+
+  <footer class="bottombar">
+    <span id="data-status">Loading…</span>
+    <span class="grow"></span>
+    <span class="version">v1.0</span>
+  </footer>
+
+  <!-- Templates rendered by app.js -->
+  <template id="tpl-season">
+    <section class="season-view">
+      <div class="season-header">
+        <select id="year-picker" aria-label="Season year"></select>
+        <div class="season-meta" id="season-meta"></div>
+        <button class="btn primary" id="add-event-btn" style="display:none">+ Add Round</button>
+      </div>
+      <div class="totals-card standings-card">
+        <h3>Standings</h3>
+        <div id="totals-grid"></div>
+      </div>
+      <div id="chart-area"></div>
+      <div class="events-card">
+        <h3>Rounds</h3>
+        <div id="events-table"></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-lifetime">
+    <section class="lifetime-view">
+      <div class="filter-row">
+        <label>Range
+          <select id="range-picker">
+            <option value="all">All time</option>
+            <!-- Per-year options injected by JS -->
+            <option value="custom">Custom…</option>
+          </select>
+        </label>
+        <span id="custom-range" class="hidden">
+          <input type="date" id="range-from" />
+          <input type="date" id="range-to" />
+        </span>
+        <span class="player-toggles">
+          <label class="check"><input type="checkbox" data-player="eric" checked /> Eric</label>
+          <label class="check"><input type="checkbox" data-player="pete" checked /> Pete</label>
+          <label class="check"><input type="checkbox" data-player="jim" checked /> Jim</label>
+        </span>
+        <label class="check"><input type="checkbox" id="show-trend" checked /> Trend lines</label>
+      </div>
+      <div class="chart-card tall">
+        <canvas id="lifetime-chart"></canvas>
+      </div>
+      <div class="lifetime-stats" id="lifetime-stats"></div>
+    </section>
+  </template>
+
+  <template id="tpl-all-years">
+    <section class="all-years-view">
+      <h2>Year-over-Year</h2>
+      <div id="all-years-table"></div>
+      <div class="title-card" id="title-card"></div>
+    </section>
+  </template>
+
+  <template id="tpl-add-event">
+    <section class="add-event-view">
+      <h2 id="add-title">Add Round</h2>
+      <form id="event-form" class="event-form">
+        <div class="row">
+          <label>Date <input type="date" name="date" required /></label>
+          <label>Course <input type="text" name="course" placeholder="e.g. Indian Peaks" required /></label>
+        </div>
+        <div class="row">
+          <label>Holes
+            <select name="holes">
+              <option value="9">9 holes</option>
+              <option value="18">18 holes</option>
+            </select>
+          </label>
+          <label class="check">
+            <input type="checkbox" name="isFinalRound" /> Final round of season (points doubled)
+          </label>
+        </div>
+        <div id="player-rows"></div>
+        <label>Comments
+          <textarea name="comments" rows="2" placeholder="e.g. Eric saved a point on 18"></textarea>
+        </label>
+
+        <div class="preview-card" id="preview-card">
+          <h4>Preview</h4>
+          <div id="preview-content">Enter scores to see points calculation.</div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" id="cancel-btn">Cancel</button>
+          <button type="submit" class="btn primary" id="submit-btn">Save Round</button>
+        </div>
+      </form>
+    </section>
+  </template>
+
+  <template id="tpl-pending">
+    <section class="pending-view">
+      <h2>Pending Round</h2>
+      <p class="muted">Someone sent you this round to approve.</p>
+      <div class="preview-card" id="pending-preview"></div>
+      <div class="actions">
+        <button class="btn" id="reject-btn">Reject</button>
+        <button class="btn primary" id="approve-btn">Approve & Save</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-settings">
+    <section class="settings-view">
+      <h2>Settings</h2>
+
+      <div class="card">
+        <h3>GitHub Access (Pete only)</h3>
+        <p class="muted">Paste a fine-grained Personal Access Token scoped to <code>petebehrens/golf</code> with <em>contents: write</em> permission. Stored only in this browser. Required only for saving new rounds.</p>
+        <div class="row">
+          <input type="password" id="pat-input" placeholder="github_pat_…" autocomplete="off" />
+          <button class="btn" id="save-pat">Save</button>
+        </div>
+        <p id="pat-status" class="muted small"></p>
+      </div>
+
+      <div class="card">
+        <h3>Repo</h3>
+        <div class="row">
+          <label>Owner <input type="text" id="repo-owner" /></label>
+          <label>Repo <input type="text" id="repo-name" /></label>
+          <label>Path <input type="text" id="repo-path" /></label>
+          <label>Branch <input type="text" id="repo-branch" /></label>
+        </div>
+        <div class="row">
+          <button class="btn" id="save-repo">Save Repo Config</button>
+          <button class="btn" id="test-fetch">Test Read</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Data</h3>
+        <div class="row">
+          <button class="btn" id="reload-btn">Reload from repo</button>
+          <button class="btn" id="export-json">Export JSON</button>
+          <button class="btn" id="export-xlsx">Export XLSX</button>
+        </div>
+        <p class="muted small">Import: paste seasons.json text below to overwrite local data.</p>
+        <textarea id="import-text" rows="3" placeholder="Paste seasons.json here…"></textarea>
+        <button class="btn" id="import-btn">Import</button>
+      </div>
+    </section>
+  </template>
+
+  <!-- Chart.js + date adapter (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <!-- App scripts -->
+  <script src="js/scoring.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
