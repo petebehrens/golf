@@ -827,15 +827,19 @@
       e.preventDefault();
       const event = formToEvent(form, season);
 
-      // Required-field check: every season player must have at least one score
-      const missing = season.players.filter((pk) => {
+      // At least 2 players must have scored (you need a head-to-head matchup).
+      // Players who didn't play are dropped from the event entirely.
+      const playedKeys = season.players.filter((pk) => {
         const p = event.players[pk];
-        if (!p) return true;
-        return p.front9 == null && p.back9 == null;
+        return p && (p.front9 != null || p.back9 != null);
       });
-      if (missing.length) {
-        toast(`Need scores for: ${missing.map((m) => PLAYER_NAMES[m]).join(", ")}`, true);
+      if (playedKeys.length < 2) {
+        toast(`Need scores for at least 2 players`, true);
         return;
+      }
+      // Drop empty players so the event only records who actually played
+      for (const pk of season.players) {
+        if (!playedKeys.includes(pk)) delete event.players[pk];
       }
 
       const errs = Scoring.validateEvent(event);
@@ -870,9 +874,9 @@
     const wrap = document.getElementById("player-rows");
     wrap.innerHTML = season.players.map((pk) => `
       <div class="player-row ${pk}">
-        <div class="player-name">${PLAYER_NAMES[pk]}</div>
+        <div class="player-name">${PLAYER_NAMES[pk]} <span class="muted small">— leave blank if didn't play</span></div>
         <div class="scores-row">
-          <label><span class="lbl-front">Front 9</span> <input type="number" step="1" min="0" name="${pk}_front9" inputmode="numeric" required /></label>
+          <label><span class="lbl-front">Front 9</span> <input type="number" step="1" min="0" name="${pk}_front9" inputmode="numeric" /></label>
           <label data-only-18>Back 9 <input type="number" step="1" min="0" name="${pk}_back9" inputmode="numeric" /></label>
           <label class="check"><input type="checkbox" name="${pk}_eagle" /> Eagle</label>
           <label data-only-handicap class="check muted small" style="display:none">
