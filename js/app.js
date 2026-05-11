@@ -876,8 +876,8 @@
       <div class="player-row ${pk}">
         <div class="player-name">${PLAYER_NAMES[pk]} <span class="muted small">— leave blank if didn't play</span></div>
         <div class="scores-row">
-          <label><span class="lbl-front">Front 9</span> <input type="number" step="1" min="0" name="${pk}_front9" inputmode="numeric" /></label>
-          <label data-only-18>Back 9 <input type="number" step="1" min="0" name="${pk}_back9" inputmode="numeric" /></label>
+          <label data-front-label>Front 9 <input type="number" step="1" min="0" name="${pk}_front9" inputmode="numeric" /></label>
+          <label data-back-label>Back 9 <input type="number" step="1" min="0" name="${pk}_back9" inputmode="numeric" /></label>
           <label class="check"><input type="checkbox" name="${pk}_eagle" /> Eagle</label>
           <label data-only-handicap class="check muted small" style="display:none">
             <input type="number" step="0.1" name="${pk}_handicap" placeholder="HC" style="width: 60px" />
@@ -890,24 +890,34 @@
     }
   }
 
+  // Holes select is one of "front9" (9-hole front), "back9" (9-hole back), "18" (full).
+  // Each player has two input fields (front9, back9). We just toggle which are visible.
   function togglePlayerInputs(holes) {
     const wrap = document.getElementById("player-rows");
-    wrap.querySelectorAll("[data-only-18]").forEach((el) => {
-      el.style.display = holes === "18" ? "" : "none";
+    const showFront = (holes === "front9" || holes === "18");
+    const showBack  = (holes === "back9"  || holes === "18");
+    wrap.querySelectorAll("[data-front-label]").forEach((el) => {
+      el.style.display = showFront ? "" : "none";
     });
-    wrap.querySelectorAll(".lbl-front").forEach((el) => {
-      el.textContent = holes === "9" ? "9 holes" : "Front 9";
+    wrap.querySelectorAll("[data-back-label]").forEach((el) => {
+      el.style.display = showBack ? "" : "none";
     });
   }
 
   function formToEvent(form, season) {
     const fd = new FormData(form);
-    const holes = Number(fd.get("holes"));
+    const holes = fd.get("holes"); // "front9" | "back9" | "18"
     const players = {};
     for (const pk of season.players) {
-      const front9 = numOrNull(fd.get(`${pk}_front9`));
-      let back9 = holes === 18 ? numOrNull(fd.get(`${pk}_back9`)) : null;
-      // Single 9-hole round: input goes into "front9" but we store as front9.
+      let front9 = null, back9 = null;
+      if (holes === "18") {
+        front9 = numOrNull(fd.get(`${pk}_front9`));
+        back9 = numOrNull(fd.get(`${pk}_back9`));
+      } else if (holes === "back9") {
+        back9 = numOrNull(fd.get(`${pk}_back9`));
+      } else {
+        front9 = numOrNull(fd.get(`${pk}_front9`));
+      }
       const eagle = !!fd.get(`${pk}_eagle`);
       const handicap = numOrNull(fd.get(`${pk}_handicap`));
       const total18 = (front9 != null && back9 != null) ? front9 + back9 : null;

@@ -3212,7 +3212,7 @@
           "course": "Shining Mountain",
           "isFinalRound": false,
           "isPreseason": false,
-          "comments": "Eric’s putts keep him in it for awhile, but Pete finally comes through",
+          "comments": "Eric\u2019s putts keep him in it for awhile, but Pete finally comes through",
           "players": {
             "eric": {
               "front9": null,
@@ -3852,7 +3852,7 @@
           "course": "Fosil Trace",
           "isFinalRound": false,
           "isPreseason": false,
-          "comments": "Pete’s hot and cold beat Eric’s Luke warm in the end. Tied going into 18 - Pete par, Eric with tough sand shot doubles.",
+          "comments": "Pete\u2019s hot and cold beat Eric\u2019s Luke warm in the end. Tied going into 18 - Pete par, Eric with tough sand shot doubles.",
           "players": {
             "eric": {
               "front9": 42,
@@ -5547,7 +5547,7 @@
           "course": "Indian Peaks Back 9",
           "isFinalRound": false,
           "isPreseason": false,
-          "comments": "🌧️ with Kyle and Carrie",
+          "comments": "\ud83c\udf27\ufe0f with Kyle and Carrie",
           "players": {
             "eric": {
               "front9": null,
@@ -9216,7 +9216,7 @@
           "course": "Saddleback",
           "isFinalRound": false,
           "isPreseason": false,
-          "comments": "Nice to have Eric back in the game! Even though he's playing to get ready for 2024 😜",
+          "comments": "Nice to have Eric back in the game! Even though he's playing to get ready for 2024 \ud83d\ude1c",
           "players": {
             "eric": {
               "front9": 45,
@@ -9758,7 +9758,7 @@
           "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
-          "comments": "Great to see Eric working through his issues as Pete plays sympathy golf. You got this Eric! 😜",
+          "comments": "Great to see Eric working through his issues as Pete plays sympathy golf. You got this Eric! \ud83d\ude1c",
           "players": {
             "eric": {
               "front9": 52,
@@ -10285,8 +10285,8 @@
           "comments": "After a couple of early shanks by Jim due to not warming up, he fought back well and just came up short.",
           "players": {
             "pete": {
-              "front9": 42,
-              "back9": null,
+              "front9": null,
+              "back9": 42,
               "total18": null,
               "eagle": false,
               "handicap": null,
@@ -10296,8 +10296,8 @@
               }
             },
             "jim": {
-              "front9": 45,
-              "back9": null,
+              "front9": null,
+              "back9": 45,
               "total18": null,
               "eagle": false,
               "handicap": null,
