@@ -68,16 +68,20 @@
       eagleA: 0,
       eagleB: 0,
       doubled: !!isFinalRound,
+      carryover: 0,
+      carryoverTo: null,
     };
 
     // Front 9
     const aF = adjustedNine(a.front9, keys.a, houseRules);
     const bF = adjustedNine(b.front9, keys.b, houseRules);
+    let frontTied = false;
     if (aF != null && bF != null) {
       const r = scoreNine(aF, bF);
       aPts += r.points.a;
       bPts += r.points.b;
       breakdown.front = { aRaw: a.front9, bRaw: b.front9, aAdj: aF, bAdj: bF, ...r };
+      if (r.winner === "tie") frontTied = true;
     }
     // Back 9
     const aB = adjustedNine(a.back9, keys.a, houseRules);
@@ -87,6 +91,18 @@
       aPts += r.points.a;
       bPts += r.points.b;
       breakdown.back = { aRaw: a.back9, bRaw: b.back9, aAdj: aB, bAdj: bB, ...r };
+
+      // Carry-over rule: if the front 9 tied (and both played both 9s), the back-9
+      // winner gets +1 carried over. If the back also ties, the carry is lost.
+      if (frontTied && playedHoles === 18 && r.winner === "a") {
+        aPts += 1;
+        breakdown.carryover = 1;
+        breakdown.carryoverTo = "a";
+      } else if (frontTied && playedHoles === 18 && r.winner === "b") {
+        bPts += 1;
+        breakdown.carryover = 1;
+        breakdown.carryoverTo = "b";
+      }
     }
 
     // 18-hole bonus: only if both played both nines

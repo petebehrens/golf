@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-05-10T17:08:25.937Z",
+  "lastUpdated": "2026-05-15T19:51:22.855808Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -55,7 +55,7 @@
         {
           "id": "2014-04-29-omni-vista-sunset",
           "date": "2014-04-29",
-          "course": "Omni Vista & Sunset",
+          "course": "Omni Vista + Sunshine",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Regular season, poor scores due to 25+ MPH winds",
@@ -154,7 +154,7 @@
         {
           "id": "2014-05-29-heritage",
           "date": "2014-05-29",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Great day for weather",
@@ -451,7 +451,7 @@
         {
           "id": "2014-07-31-hylands",
           "date": "2014-07-31",
-          "course": "Hylands",
+          "course": "Hylands Gold",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Best Battle of the year - ended limping",
@@ -484,7 +484,7 @@
         {
           "id": "2014-08-24-heritage",
           "date": "2014-08-24",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Strange end Eric great blind shot, but then Pete gave a putt away to lose",
@@ -649,7 +649,7 @@
         {
           "id": "2014-10-01-heritage",
           "date": "2014-10-01",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric finally collapsed again, returning to his June ways; 53 really not sure what happened..",
@@ -926,7 +926,7 @@
         {
           "id": "2015-05-31-heritage",
           "date": "2015-05-31",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Tightest match of the year - tied going into 9 and Eric's Big Bertha goes OB. Ouch.",
@@ -992,7 +992,7 @@
         {
           "id": "2015-06-18-heritage",
           "date": "2015-06-18",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete was giving up putts, but Eric gave it away again on 9 in the left rough. Double-Ouch!",
@@ -1124,7 +1124,7 @@
         {
           "id": "2015-07-20-ip",
           "date": "2015-07-20",
-          "course": "IP",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Are we headed the wrong way?",
@@ -1190,7 +1190,7 @@
         {
           "id": "2015-08-11-heritage",
           "date": "2015-08-11",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "The rain clouds parted for a pete victory",
@@ -1388,7 +1388,7 @@
         {
           "id": "2015-09-14-west-woods",
           "date": "2015-09-14",
-          "course": "West Woods",
+          "course": "West Woods Silo",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Three in a row gaining points for Eric",
@@ -1500,7 +1500,7 @@
         {
           "id": "2016-05-11-heritage",
           "date": "2016-05-11",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete blows it on 9 and 18 after being tied on 8 and 17 - Doh!",
@@ -1566,7 +1566,7 @@
         {
           "id": "2016-05-24-flatitrons",
           "date": "2016-05-24",
-          "course": "FlatItrons",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "1/4 inch from 2 pts for Eric",
@@ -1665,7 +1665,7 @@
         {
           "id": "2016-06-13-legacy",
           "date": "2016-06-13",
-          "course": "Legacy",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Tough day for Pete, Eric played steady",
@@ -1764,7 +1764,7 @@
         {
           "id": "2016-07-14-heritage",
           "date": "2016-07-14",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Great back nine to break 90",
@@ -1797,7 +1797,7 @@
         {
           "id": "2016-07-24-flatitrons",
           "date": "2016-07-24",
-          "course": "FlatItrons",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Or did we play on the 23rd? :)  Eric still hung over from California",
@@ -1962,7 +1962,7 @@
         {
           "id": "2016-08-20-legacy",
           "date": "2016-08-20",
-          "course": "Legacy",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Both of us tried to lose today, but the other would not let them be out-lossed",
@@ -1995,7 +1995,7 @@
         {
           "id": "2016-08-25-heritage",
           "date": "2016-08-25",
-          "course": "Heritage",
+          "course": "Walnut Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Ali and Fraiser battling it out, back and forth, jabs and punches, both still standing for a judges decision",
@@ -2061,7 +2061,7 @@
         {
           "id": "2016-09-05-colorado-national-match-play-double-pts",
           "date": "2016-09-05",
-          "course": "Colorado National (Match Play Double Pts)",
+          "course": "Colorado National",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Finally some quality golf by both. Pete's awesome saves outplayed Eric's awesomedrives",
@@ -2094,7 +2094,7 @@
         {
           "id": "2016-10-01-hyland-hills-blue",
           "date": "2016-10-01",
-          "course": "hyland hills blue",
+          "course": "Hylands Blue",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric stole a last minute point before the final match to give him a slim chance",
@@ -2127,7 +2127,7 @@
         {
           "id": "2016-10-10-final-match-ute-creek",
           "date": "2016-10-10",
-          "course": "final match - Ute Creek",
+          "course": "Ute Creek",
           "isFinalRound": true,
           "isPreseason": false,
           "comments": "With a 5 stroke lead in the first few holes, Pete gives it away tied to 9, but Eric's short game failed one last time to give up the season and Pete's clutch sand shot does just enough to clinch the season. ",
@@ -2173,7 +2173,7 @@
         {
           "id": "2017-05-01-indian-peaks-back-9",
           "date": "2017-05-01",
-          "course": "Indian Peaks (back 9)",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Tied with 3 to play, Eric flops at 16 opening up the 2 point victory for Pete",
@@ -2206,7 +2206,7 @@
         {
           "id": "2017-05-03-indian-peaks-front-9",
           "date": "2017-05-03",
-          "course": "Indian Peaks (front 9)",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Missed 6 foot put on nine - just missing the two point win",
@@ -2272,7 +2272,7 @@
         {
           "id": "2017-05-28-west-woods",
           "date": "2017-05-28",
-          "course": "West Woods",
+          "course": "West Woods Silo",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Battle of the worst - Eric wins out with a rusty short game",
@@ -2978,7 +2978,7 @@
         {
           "id": "2018-05-08-flatirons",
           "date": "2018-05-08",
-          "course": "FlatIrons",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric nearly pulls off an amazing round.  Pete solid short",
@@ -3341,7 +3341,7 @@
         {
           "id": "2018-08-05-west-woods",
           "date": "2018-08-05",
-          "course": "West Woods",
+          "course": "West Woods Silo",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Best 9 and 18 ever for Eric.",
@@ -3506,7 +3506,7 @@
         {
           "id": "2018-09-28-indian-peaks-championship",
           "date": "2018-09-28",
-          "course": "Indian Peaks Championship",
+          "course": "Indian Peaks",
           "isFinalRound": true,
           "isPreseason": false,
           "comments": "Eric finishes the season in dominate fashion; Improved average by 6 strokes year over year.",
@@ -3552,7 +3552,7 @@
         {
           "id": "2019-05-07-flatirons-back-nine",
           "date": "2019-05-07",
-          "course": "FlatIrons Back nine",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "The force was strong in Pete from 6 weeks on the European Tour, almost gave it away though",
@@ -3618,7 +3618,7 @@
         {
           "id": "2019-05-19-indian-peaks-back-nine",
           "date": "2019-05-19",
-          "course": "Indian Peaks Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete jumped to an early lead, par golf for 4 holes, then let Eric back in the game with a chance to win on on 18. ",
@@ -3684,7 +3684,7 @@
         {
           "id": "2019-06-02-the-omni-vista-sunshine",
           "date": "2019-06-02",
-          "course": "The Omni (Vista-Sunshine)",
+          "course": "Omni Vista + Sunshine",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Close match on both sides, better play on the back. Eric get's inside Pete's dome at the last.",
@@ -3750,7 +3750,7 @@
         {
           "id": "2019-06-19-indian-peaks-front-nine",
           "date": "2019-06-19",
-          "course": "Indian Peaks Front nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Back to a decent round with one blow up triple boggie on par 3 #8 in the water for both of us",
@@ -3783,7 +3783,7 @@
         {
           "id": "2019-06-20-flatirons-back-nine",
           "date": "2019-06-20",
-          "course": "FlatIrons Back nine",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Finally a competent scoring match, but Eric failed to take advantage of the few Pete mistakes",
@@ -3816,7 +3816,7 @@
         {
           "id": "2019-06-22-thorncreek",
           "date": "2019-06-22",
-          "course": "Thorncreek",
+          "course": "Thorn Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Once again Pete gave all sorts of opennings that Eric failed to take advantage of. Clutch putt by Pete on 18 to gain the back nine point.",
@@ -3849,7 +3849,7 @@
         {
           "id": "2019-06-23-fosil-trace",
           "date": "2019-06-23",
-          "course": "Fosil Trace",
+          "course": "Fossil Trace",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete\u2019s hot and cold beat Eric\u2019s Luke warm in the end. Tied going into 18 - Pete par, Eric with tough sand shot doubles.",
@@ -3882,7 +3882,7 @@
         {
           "id": "2019-06-25-indian-peaks-18",
           "date": "2019-06-25",
-          "course": "Indian Peaks 18!",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Beautiful morning - walked 18 in 3:10. Pete crushed the front-nine, held it together enough on the back nine for the overall win.",
@@ -3948,7 +3948,7 @@
         {
           "id": "2019-08-05-flatirons-back-nine",
           "date": "2019-08-05",
-          "course": "FlatIrons Back nine",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Hey spreadsheet long time no see.  Hot start by Pete loses to a strong finish by Eric.",
@@ -3981,7 +3981,7 @@
         {
           "id": "2019-08-09-indian-peaks-back-nine",
           "date": "2019-08-09",
-          "course": "Indian Peaks Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pretty solid day by Eric vs a wild Pete. Great to play with Karen too.",
@@ -4014,7 +4014,7 @@
         {
           "id": "2019-08-11-indian-peaks-back-nine",
           "date": "2019-08-11",
-          "course": "Indian Peaks Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Slight improvement for both; Pete has an adventure on number two.  Eric is getting hot way too late",
@@ -4093,7 +4093,7 @@
         {
           "id": "2020-05-04-flatirons-front-nine",
           "date": "2020-05-04",
-          "course": "FlatIrons Front nine",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "High winds and rough made for a tough day after opening pars - COVID be dammed!",
@@ -4126,7 +4126,7 @@
         {
           "id": "2020-05-06-indian-peaks-twilight",
           "date": "2020-05-06",
-          "course": "Indian Peaks Twilight",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Beautiful night as Pete struggles with swing and Eric with sand",
@@ -4192,7 +4192,7 @@
         {
           "id": "2020-05-14-legacy",
           "date": "2020-05-14",
-          "course": "Legacy",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Strong starts, tough middles, right finish - need to stop the blow up holes",
@@ -4225,7 +4225,7 @@
         {
           "id": "2020-05-17-ip-back-nine",
           "date": "2020-05-17",
-          "course": "IP Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Mezcal fueled victory for Eric after Pete stumbles out of the gate",
@@ -4324,7 +4324,7 @@
         {
           "id": "2020-06-02-ip-back-nine",
           "date": "2020-06-02",
-          "course": "IP Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete's putter and Eric's wedge turn great rounds into good....",
@@ -4357,7 +4357,7 @@
         {
           "id": "2020-06-04-ip-18",
           "date": "2020-06-04",
-          "course": "IP 18",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Great front nine and a birdie bomb from 92 propel Eric to victory",
@@ -4489,7 +4489,7 @@
         {
           "id": "2020-06-23-ip-back-nine",
           "date": "2020-06-23",
-          "course": "IP Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Great battle back and forth.",
@@ -4522,7 +4522,7 @@
         {
           "id": "2020-06-24-westwoods-sleeping-indian",
           "date": "2020-06-24",
-          "course": "Westwoods Sleeping Indian",
+          "course": "West Woods Sleeping Indian",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Stormy start made for rough day all around",
@@ -4588,7 +4588,7 @@
         {
           "id": "2020-07-01-indian-peaks-twilight",
           "date": "2020-07-01",
-          "course": "Indian Peaks Twilight",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Fun night with bonus holes; Pete takes the nine Eric the dinner!",
@@ -4687,7 +4687,7 @@
         {
           "id": "2020-07-16-legacy",
           "date": "2020-07-16",
-          "course": "Legacy",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Patience proves a virtue for Eric when Frosty visits Pete.",
@@ -4720,7 +4720,7 @@
         {
           "id": "2020-07-22-ip-front-nine",
           "date": "2020-07-22",
-          "course": "IP Front Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Late Pete malfunction opens the door to a smooth win by Eric",
@@ -4819,7 +4819,7 @@
         {
           "id": "2020-08-03-ip-front-nine",
           "date": "2020-08-03",
-          "course": "IP Front Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Steady day from Eric outlasts a wild Pete finish.",
@@ -4852,7 +4852,7 @@
         {
           "id": "2020-08-09-breckenridge-bear-elk",
           "date": "2020-08-09",
-          "course": "Breckenridge Bear/Elk",
+          "course": "Breckenridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric, still suffering from the 3-day epic hike, couldn't find his swing. Pete hit 13/14 fairways! #$500 Driver :)",
@@ -4885,7 +4885,7 @@
         {
           "id": "2020-08-17-ip",
           "date": "2020-08-17",
-          "course": "IP",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "After a battle on the front Eric takes off with a record back nine.",
@@ -4918,7 +4918,7 @@
         {
           "id": "2020-08-19-flatirons-mp",
           "date": "2020-08-19",
-          "course": "Flatirons (MP)",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric wins early 4&2 but can't pull off the two pointer.  Golf theatre later was great.",
@@ -4951,7 +4951,7 @@
         {
           "id": "2020-08-26-omni-sunshine-eldo",
           "date": "2020-08-26",
-          "course": "Omni (Sunshine, Eldo)",
+          "course": "Omni Sunshine + Eldorado",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Despite no shoes Eric posts a score while Pete plays up and down",
@@ -4984,7 +4984,7 @@
         {
           "id": "2020-09-01-ip-front-nine",
           "date": "2020-09-01",
-          "course": "IP Front Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric shoots a \"disappointing\" 39 after being 2 under after 5; Pete hits his season mark.",
@@ -5017,7 +5017,7 @@
         {
           "id": "2020-09-03-legacy",
           "date": "2020-09-03",
-          "course": "Legacy",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete's unconscious for 6 pars and a birdie on the front, Eric gifts 2 points on 9 and 18.",
@@ -5116,7 +5116,7 @@
         {
           "id": "2020-09-30-green-valley",
           "date": "2020-09-30",
-          "course": "Green Valley",
+          "course": "Green Valley Ranch",
           "isFinalRound": true,
           "isPreseason": false,
           "comments": "Our final match of the season - Pete needed to win both sides by 5 + eagle - not quite!",
@@ -5163,7 +5163,7 @@
         {
           "id": "2021-05-01-indian-peaks-back-9",
           "date": "2021-05-01",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Beautiful day, beautiful start (for Pete anyway :) Looking forward to a great season!",
@@ -5210,7 +5210,7 @@
         {
           "id": "2021-05-04-legacy-front-nine",
           "date": "2021-05-04",
-          "course": "Legacy Front Nine",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Late rally by Eric to sneak away with the win.  Good dinner on the deck after.",
@@ -5257,7 +5257,7 @@
         {
           "id": "2021-05-08-west-wood-silo-9",
           "date": "2021-05-08",
-          "course": "West Wood Silo 9",
+          "course": "West Woods Silo",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete crushing the morning rounds. Eric quad-bogies #3 and #4 with 4 balls in the water! Ouch; (Eric note don't forget the triple!)",
@@ -5351,7 +5351,7 @@
         {
           "id": "2021-05-15-indian-peaks-back-9-p-j",
           "date": "2021-05-15",
-          "course": "Indian Peaks Back 9 (P/J)",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Jim started out slow, but held on with a point saving putt on 18!",
@@ -5384,7 +5384,7 @@
         {
           "id": "2021-05-16-flatirons-e-p",
           "date": "2021-05-16",
-          "course": "Flatirons (E/P)",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete's par train slowly wore down Eric who couldn't keep his incredible play from last round",
@@ -5464,7 +5464,7 @@
         {
           "id": "2021-05-22-indian-peaks-back-9",
           "date": "2021-05-22",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Following Pete's Quad Bogey at 3, he boards the par train to victory, helped by Jim's Triple 14",
@@ -5511,7 +5511,7 @@
         {
           "id": "2021-05-25-hylands-blue-course",
           "date": "2021-05-25",
-          "course": "Hylands Blue Course",
+          "course": "Hylands Blue",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Bad rounds but fun to meet Jims brother",
@@ -5544,7 +5544,7 @@
         {
           "id": "2021-05-30-indian-peaks-back-9",
           "date": "2021-05-30",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "\ud83c\udf27\ufe0f with Kyle and Carrie",
@@ -5591,7 +5591,7 @@
         {
           "id": "2021-06-02-riverdale-dunes",
           "date": "2021-06-02",
-          "course": "Riverdale dunes",
+          "course": "Riverdale Dunes",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete walked Jim and Eric rode. 320 tee time",
@@ -5718,7 +5718,7 @@
         {
           "id": "2021-06-16-indian-peak-match-play",
           "date": "2021-06-16",
-          "course": "Indian Peak (Match Play)",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "First match play of the year Eric starts out hot and win 4&3, Jim rallies and hold off the two points at the last.",
@@ -5845,7 +5845,7 @@
         {
           "id": "2021-07-11-indian-peaks-back-nine",
           "date": "2021-07-11",
-          "course": "Indian Peaks Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Played with a good fourth and fast.",
@@ -5939,7 +5939,7 @@
         {
           "id": "2021-07-17-indian-peaks-back-nine",
           "date": "2021-07-17",
-          "course": "Indian Peaks Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "With a chance at greatness Eric hooks his 5 hybrid into the pond for double instead.  ",
@@ -5986,7 +5986,7 @@
         {
           "id": "2021-07-21-hylands-gold-course",
           "date": "2021-07-21",
-          "course": "Hylands Gold Course",
+          "course": "Hylands Gold",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "The Gold turns out to be a really fun track. John the optimist tagged along.",
@@ -6033,7 +6033,7 @@
         {
           "id": "2021-07-24-indin-peaks",
           "date": "2021-07-24",
-          "course": "IndiN Peaks",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Exciting battle of the halfs. Jims best 9 in recent history. with Boulderites Heather and Chris",
@@ -6113,7 +6113,7 @@
         {
           "id": "2021-07-31-indian-peaks-back-nine",
           "date": "2021-07-31",
-          "course": "Indian Peaks Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Old Pete makes a late appearance and rattles off the pars and a bird.  Not gonna lie it may a tad too late...",
@@ -6240,7 +6240,7 @@
         {
           "id": "2021-08-15-indian-peaks-back-nine",
           "date": "2021-08-15",
-          "course": "Indian Peaks Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "First clear day in a while. Pete is up and down with a triple and a bird. Eric has some great moments, but jim staves them off with consistent ball striking and putting.",
@@ -6334,7 +6334,7 @@
         {
           "id": "2021-08-21-indian-peaks-back-nine",
           "date": "2021-08-21",
-          "course": "Indian peaks back nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete chipped away at Jim all morning",
@@ -6588,7 +6588,7 @@
         {
           "id": "2021-09-22-westwoods-sleeping-indian",
           "date": "2021-09-22",
-          "course": "Westwoods Sleeping Indian",
+          "course": "West Woods Sleeping Indian",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Beautiful night and a tough course",
@@ -6701,7 +6701,7 @@
         {
           "id": "2021-10-03-ip-back-nine",
           "date": "2021-10-03",
-          "course": "IP Back Nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete was set for a course/personal record but failed with a double bogey on 18",
@@ -6748,7 +6748,7 @@
         {
           "id": "2021-10-06-tpc-colorado-final",
           "date": "2021-10-06",
-          "course": "TPC Colorado (Final)",
+          "course": "TPC Colorado",
           "isFinalRound": true,
           "isPreseason": false,
           "comments": "After an opening triple, Pete road the par train to victory on the front and hung onto the back. ",
@@ -6903,7 +6903,7 @@
         {
           "id": "2022-05-07-indian-peaks-back-9",
           "date": "2022-05-07",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "With Eric out on COVID protocol, Pete & Jim scrambled around an easy course the hard way ",
@@ -6936,7 +6936,7 @@
         {
           "id": "2022-05-11-hylands-gold-course",
           "date": "2022-05-11",
-          "course": "Hylands Gold Course",
+          "course": "Hylands Gold",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "With Eric running scared claiming he got COVID, Pete put the hammer down @ Hylands Gold",
@@ -6969,7 +6969,7 @@
         {
           "id": "2022-05-15-indian-peaks-back-9",
           "date": "2022-05-15",
-          "course": "indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Jim saved a point with a great putt",
@@ -7002,7 +7002,7 @@
         {
           "id": "2022-05-18-west-woods-silo-sleeping-ind",
           "date": "2022-05-18",
-          "course": "West Woods Silo Sleeping Ind",
+          "course": "West Woods Silo + Sleeping Indian",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Great day for Jim to earn first points of the season!",
@@ -7049,7 +7049,7 @@
         {
           "id": "2022-05-22-indian-peaks-back-9",
           "date": "2022-05-22",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Epic Eric and Pete battle, with Eric taking the early lead and Pete surging from behind to tie.",
@@ -7190,7 +7190,7 @@
         {
           "id": "2022-06-08-flatirons-back-9",
           "date": "2022-06-08",
-          "course": "Flatirons Back 9",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete got on the par train and didn't get off until it didn't matter. Eric hit 5 bad shots on a par 3 :(",
@@ -7322,7 +7322,7 @@
         {
           "id": "2022-06-23-legacy-front-9",
           "date": "2022-06-23",
-          "course": "Legacy Front 9",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "After starting with a double bogie, Pete kicked it into gear and kicked ass",
@@ -7369,7 +7369,7 @@
         {
           "id": "2022-06-26-indian-peaks-back-9",
           "date": "2022-06-26",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Jim and Pete in an epic battle to tie at 39, but each stealing 2 points from an average Eric",
@@ -7463,7 +7463,7 @@
         {
           "id": "2022-07-01-west-woods-sleeping-cotton",
           "date": "2022-07-01",
-          "course": "West Woods - Sleeping/Cotton",
+          "course": "West Woods Sleeping Indian + Cottonwood",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Even front nine, until Pete found the par train. We both struggled on the back",
@@ -7529,7 +7529,7 @@
         {
           "id": "2022-07-10-flatirons-front-9",
           "date": "2022-07-10",
-          "course": "Flatirons Front 9",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric's driver behaved mostly and a good score resulted. Jim became woody the owl...",
@@ -7609,7 +7609,7 @@
         {
           "id": "2022-07-15-indian-peaks-back-9",
           "date": "2022-07-15",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete lights up a solid round, but couldn't drop his out for the second point on Eric. ",
@@ -7816,7 +7816,7 @@
         {
           "id": "2022-08-20-flat-irons",
           "date": "2022-08-20",
-          "course": "Flat Irons",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Forced to flee by the weather the round ends after 16.  Eric holds on for a one stroke victory.",
@@ -7943,7 +7943,7 @@
         {
           "id": "2022-09-07-indian-peaks-back-9",
           "date": "2022-09-07",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric was \"tiled\" but put in a solid round anyhow.  Bandon in sight!",
@@ -8023,7 +8023,7 @@
         {
           "id": "2022-09-12-ip-front-nine",
           "date": "2022-09-12",
-          "course": "IP Front nine",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "It was a tight match until it wasn't, Jim swinging from the brush near the lake was a great image",
@@ -8056,7 +8056,7 @@
         {
           "id": "2022-09-15-legacy-ridge-mix",
           "date": "2022-09-15",
-          "course": "Legacy Ridge (Mix)",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete revives his flatliner to take a point, Eric can blame it on the double(s) on the back but holds off Jim.  Bandon Ho!",
@@ -8103,7 +8103,7 @@
         {
           "id": "2022-09-20-coos-bays",
           "date": "2022-09-20",
-          "course": "Coos Bays",
+          "course": "Coos Bay",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Welecome to OR. Pete's driver abandons him in the thick woods Eric grinds it out",
@@ -8235,7 +8235,7 @@
         {
           "id": "2022-09-28-thorn-creek-final-match-2x",
           "date": "2022-09-28",
-          "course": "Thorn Creek (Final Match 2x)",
+          "course": "Thorn Creek",
           "isFinalRound": true,
           "isPreseason": false,
           "comments": "What a finish! Every possible outcome in play until 18 with Pete/Eric - ending in a season tie!",
@@ -8297,7 +8297,7 @@
         {
           "id": "2023-04-30-coal-creek-opener",
           "date": "2023-04-30",
-          "course": "Coal Creek Opener",
+          "course": "Coal Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "A tale of two nines, Eric unconscious on the front, Pete wicked on the back.",
@@ -8557,7 +8557,7 @@
         {
           "id": "2023-05-31-legacy-swapped-nines",
           "date": "2023-05-31",
-          "course": "Legacy (swapped nines)",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Overall close match wit all points in play until the end - Jim pulled out the win over Eric & tied Pete",
@@ -8659,7 +8659,7 @@
         {
           "id": "2023-06-08-flatirons-back-nine",
           "date": "2023-06-08",
-          "course": "Flatirons (back nine)",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Tight match until #7 with Eric's snowman - then Pete put the hammer down and crushed him!",
@@ -8842,7 +8842,7 @@
         {
           "id": "2023-07-05-west-woods-si-and-cw",
           "date": "2023-07-05",
-          "course": "West Woods (SI and CW)",
+          "course": "West Woods Sleeping Indian + Cottonwood",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "",
@@ -8893,7 +8893,7 @@
         {
           "id": "2023-07-11-indian-peaks-back-9",
           "date": "2023-07-11",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "First EAGLE in recorded history by JIM!!!!   ",
@@ -8981,7 +8981,7 @@
         {
           "id": "2023-07-13-ute-creek-swapped-9s",
           "date": "2023-07-13",
-          "course": "Ute Creek (swapped 9s)",
+          "course": "Ute Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Both sucked on back/front nine, Pete crushed the front/back",
@@ -9014,7 +9014,7 @@
         {
           "id": "2023-07-16-indian-peaks-back-9",
           "date": "2023-07-16",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Bill played with us. Pete snatched defeat out of the jaws of victory on the last hole",
@@ -9051,7 +9051,7 @@
         {
           "id": "2023-07-19-coal-creek-gc",
           "date": "2023-07-19",
-          "course": "Coal Creek GC",
+          "course": "Coal Creek",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Birdy for pete. close match, w/  random Den and Brad. Gotta love Den's Swing!!!",
@@ -9088,7 +9088,7 @@
         {
           "id": "2023-07-25-the-broadlands",
           "date": "2023-07-25",
-          "course": "The Broadlands",
+          "course": "Broadlands",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pete and Jim both birdied #15 - a rare and encouraging event. Was supposed to be very hot but wasn't too bad.",
@@ -9320,7 +9320,7 @@
         {
           "id": "2023-08-23-interlocked-sunrise-9",
           "date": "2023-08-23",
-          "course": "Interlocked Sunrise 9",
+          "course": "Omni Sunshine",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Both sucked, but Pete sucked less",
@@ -9357,7 +9357,7 @@
         {
           "id": "2023-08-27-bear-dance",
           "date": "2023-08-27",
-          "course": "Bear Dance ",
+          "course": "Bear Dance",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Very fun course! Jim Started strong but then hit drives ob. Pete birdied 17",
@@ -9408,7 +9408,7 @@
         {
           "id": "2023-08-29-fossil-trace-swapped-9s",
           "date": "2023-08-29",
-          "course": "Fossil Trace (swapped 9s)",
+          "course": "Fossil Trace",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Pretty warm, challenging round. I gave everyone a bogey, 6, on the 18th hole, which was not played",
@@ -9459,7 +9459,7 @@
         {
           "id": "2023-09-06-ute-creek-championship",
           "date": "2023-09-06",
-          "course": "Ute Creek Championship",
+          "course": "Ute Creek",
           "isFinalRound": true,
           "isPreseason": false,
           "comments": "Front was great. Back was hard (for j anyhoo). Pete won ad hoc skins game on back",
@@ -9524,7 +9524,7 @@
         {
           "id": "2024-05-01-legacy-reversed-9s",
           "date": "2024-05-01",
-          "course": "Legacy (Reversed 9s)",
+          "course": "Legacy Ridge",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric had the handicap advantage, but didn't need it as he recovered from last year's tumble",
@@ -9590,7 +9590,7 @@
         {
           "id": "2024-05-14-ip-back-9",
           "date": "2024-05-14",
-          "course": "IP (back 9)",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Both had some putter problems but slogded it out.",
@@ -9656,7 +9656,7 @@
         {
           "id": "2024-05-28-westwoods-si-cottonwood",
           "date": "2024-05-28",
-          "course": "Westwoods (SI & Cottonwood)",
+          "course": "West Woods Sleeping Indian + Cottonwood",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Our first half point game with the new handicap sub 1 stroke win.",
@@ -9689,7 +9689,7 @@
         {
           "id": "2024-05-30-flatirons-back-nine",
           "date": "2024-05-30",
-          "course": "Flatirons (Back Nine)",
+          "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "After this day, Eric's complementing giving up the game for good. He needs a golf shrink.",
@@ -9821,7 +9821,7 @@
         {
           "id": "2024-07-02-indian-peaks-back-9",
           "date": "2024-07-02",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric's swing is getting closer, and Pete is loosing his, just a bit. ",
@@ -9854,7 +9854,7 @@
         {
           "id": "2024-07-09-indian-peaks-back-9",
           "date": "2024-07-09",
-          "course": "Indian Peaks Back 9",
+          "course": "Indian Peaks",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Eric's back, but Pete excels in the battle as Eric tries Driver out of the rough on 18, sadly sailing OOB. ",
@@ -10085,7 +10085,7 @@
         {
           "id": "2024-08-15-hyland-hills-blue",
           "date": "2024-08-15",
-          "course": "Hyland Hills Blue",
+          "course": "Hylands Blue",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Nothing good happened except Pete taking the points lead! Going to be a fun finish!",
@@ -10118,7 +10118,7 @@
         {
           "id": "2024-08-19-omni-eldorado",
           "date": "2024-08-19",
-          "course": "Omni:Eldorado",
+          "course": "Omni Eldorado",
           "isFinalRound": false,
           "isPreseason": false,
           "comments": "Two men battling thier swings.  It all comes down to the Final in Granby!",
@@ -10151,7 +10151,7 @@
         {
           "id": "2024-08-23-granby-ranch-final",
           "date": "2024-08-23",
-          "course": "Granby Ranch (Final)",
+          "course": "Granby Ranch",
           "isFinalRound": true,
           "isPreseason": false,
           "comments": "A georgeous mountain finish with Dave R. Eric 1' from another hole in one! But Pete takes the title!",

@@ -68,6 +68,11 @@
           <input type="date" id="range-from" />
           <input type="date" id="range-to" />
         </span>
+        <label>Course
+          <select id="course-filter">
+            <option value="">All courses</option>
+          </select>
+        </label>
         <span class="player-toggles">
           <label class="check"><input type="checkbox" data-player="eric" checked /> Eric</label>
           <label class="check"><input type="checkbox" data-player="pete" checked /> Pete</label>
@@ -96,7 +101,10 @@
       <form id="event-form" class="event-form">
         <div class="row">
           <label>Date <input type="date" name="date" required /></label>
-          <label>Course <input type="text" name="course" placeholder="e.g. Indian Peaks" required /></label>
+          <label>Course
+            <input type="text" name="course" list="course-list" placeholder="Start typing…" autocomplete="off" required />
+            <datalist id="course-list"></datalist>
+          </label>
         </div>
         <div class="row">
           <label>Holes

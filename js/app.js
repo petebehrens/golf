@@ -522,7 +522,26 @@
     document.querySelectorAll('.player-toggles input[data-player]').forEach((el) =>
       el.addEventListener("change", drawLifetimeChart));
 
+    // Course filter — only show courses with 2+ rounds, alphabetical
+    populateCourseFilter();
+    document.getElementById("course-filter").addEventListener("change", drawLifetimeChart);
+
     drawLifetimeChart();
+  }
+
+  function populateCourseFilter() {
+    const sel = document.getElementById("course-filter");
+    if (!sel) return;
+    const counts = allCoursesWithCounts();
+    const list = Object.entries(counts)
+      .filter(([_, n]) => n >= 2)
+      .sort(([a], [b]) => a.localeCompare(b));
+    for (const [name, n] of list) {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = `${name} (${n})`;
+      sel.appendChild(opt);
+    }
   }
 
   function drawLifetimeChart() {
@@ -547,6 +566,9 @@
       visible[el.dataset.player] = el.checked;
     });
 
+    // Course filter
+    const courseFilter = document.getElementById("course-filter").value;
+
     // Collect every event from every season, with a per-player 18-equivalent score
     const points = { eric: [], pete: [], jim: [] };
     for (const yKey of Object.keys(state.data.seasons || {})) {
@@ -554,6 +576,7 @@
       for (const ev of season.events) {
         if (from && ev.date < from) continue;
         if (to && ev.date > to) continue;
+        if (courseFilter && (ev.course || "").trim() !== courseFilter) continue;
         for (const pk of Object.keys(ev.players)) {
           const p = ev.players[pk];
           let scoreFor18 = null;
@@ -794,6 +817,27 @@
   // ============================================================
   // ADD EVENT VIEW
   // ============================================================
+  // Collect canonical course names and their round-counts across every season.
+  function allCoursesWithCounts() {
+    const counts = {};
+    for (const s of Object.values(state.data.seasons || {})) {
+      for (const ev of s.events || []) {
+        const c = (ev.course || "").trim();
+        if (!c) continue;
+        counts[c] = (counts[c] || 0) + 1;
+      }
+    }
+    return counts;
+  }
+
+  function populateCourseDatalist() {
+    const dl = document.getElementById("course-list");
+    if (!dl) return;
+    const counts = allCoursesWithCounts();
+    const names = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+    dl.innerHTML = names.map((n) => `<option value="${escapeHtml(n)}"></option>`).join("");
+  }
+
   function renderAddEvent(opts) {
     mountTemplate("tpl-add-event");
     const params = parseQuery((location.hash.split("?")[1]) || "");
@@ -804,6 +848,9 @@
 
     // Default date: today (if it's in this season's window) else season start
     form.elements.date.value = new Date().toISOString().slice(0, 10);
+
+    // Populate course datalist with every canonical course we've ever played, alphabetical
+    populateCourseDatalist();
 
     // Render player rows
     renderPlayerRows(season);
@@ -965,6 +1012,10 @@
         const e = b.breakdown.eighteen;
         if (e.winner === "tie") txt.push(`18: tie`);
         else txt.push(`18 winner ${e.winner === "a" ? PLAYER_NAMES[b.a] : PLAYER_NAMES[b.b]} → +1`);
+      }
+      if (b.breakdown.carryover) {
+        const who = b.breakdown.carryoverTo === "a" ? PLAYER_NAMES[b.a] : PLAYER_NAMES[b.b];
+        txt.push(`Front 9 tied → carryover +1 to ${who}`);
       }
       if (b.breakdown.eagleA) txt.push(`${PLAYER_NAMES[b.a]} eagle → +1`);
       if (b.breakdown.eagleB) txt.push(`${PLAYER_NAMES[b.b]} eagle → +1`);
