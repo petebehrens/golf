@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-05-15T19:56:21.501Z",
+  "lastUpdated": "2026-05-17T14:46:25.290Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10350,6 +10350,38 @@
               "pointsImported": {
                 "vsEric": 0,
                 "vsPete": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-05-15-coal-creek-u1l5",
+          "date": "2026-05-15",
+          "course": "Coal Creek",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Jim hung around and closed out with a par for a 4-stroke swing on the final hole!",
+          "players": {
+            "pete": {
+              "front9": 44,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsJim": 0
+              }
+            },
+            "jim": {
+              "front9": 44,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 1
               }
             }
           }
