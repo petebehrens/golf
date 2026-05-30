@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-05-17T14:46:25.290Z",
+  "lastUpdated": "2026-05-30T14:53:24.864Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10382,6 +10382,38 @@
               "magicEraser": null,
               "pointsImported": {
                 "vsPete": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-05-29-ute-creek-00xf",
+          "date": "2026-05-29",
+          "course": "Ute Creek",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Pete fell apart in the torrential storm, but recovered as brilliantly as the weather did.",
+          "players": {
+            "eric": {
+              "front9": 44,
+              "back9": 43,
+              "total18": 87,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 1
+              }
+            },
+            "pete": {
+              "front9": 47,
+              "back9": 38,
+              "total18": 85,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 3
               }
             }
           }
