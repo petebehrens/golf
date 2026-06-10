@@ -7819,12 +7819,13 @@
           "course": "Flatirons",
           "isFinalRound": false,
           "isPreseason": false,
-          "comments": "Forced to flee by the weather the round ends after 16.  Eric holds on for a one stroke victory.",
+          "comments": "Forced to flee by the weather the round ends after 16.  Eric holds on for a one stroke victory. [Adjusted: only 16 holes played; missing par 3 and par 4 scored as bogey for all three. Original 16-hole back-9 partials were Eric 33, Pete 34, Jim 40.]",
+          "scoreAdjusted": true,
           "players": {
             "eric": {
               "front9": 42,
-              "back9": 33,
-              "total18": null,
+              "back9": 42,
+              "total18": 84,
               "eagle": false,
               "handicap": null,
               "magicEraser": null,
@@ -7835,8 +7836,8 @@
             },
             "pete": {
               "front9": 42,
-              "back9": 34,
-              "total18": null,
+              "back9": 43,
+              "total18": 85,
               "eagle": false,
               "handicap": null,
               "magicEraser": null,
@@ -7847,8 +7848,8 @@
             },
             "jim": {
               "front9": 43,
-              "back9": 40,
-              "total18": null,
+              "back9": 49,
+              "total18": 92,
               "eagle": false,
               "handicap": null,
               "magicEraser": null,
