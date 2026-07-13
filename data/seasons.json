@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-07-08T13:43:56.196Z",
+  "lastUpdated": "2026-07-13T00:33:09.011Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10571,6 +10571,38 @@
               "magicEraser": null,
               "pointsImported": {
                 "vsEric": 3
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-07-10-west-woods-silo-ye39",
+          "date": "2026-07-10",
+          "course": "West Woods Silo",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Eric has begun to bring his game back and take advantage of the door Pete left open",
+          "players": {
+            "eric": {
+              "front9": 44,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 1
+              }
+            },
+            "pete": {
+              "front9": 47,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0
               }
             }
           }
