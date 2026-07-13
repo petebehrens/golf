@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-07-13T00:33:09.011Z",
+  "lastUpdated": "2026-07-13T00:35:24.325Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10598,6 +10598,38 @@
               "front9": 47,
               "back9": null,
               "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-07-13-granby-ranch-uut2",
+          "date": "2026-07-13",
+          "course": "Granby Ranch",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "A beautiful day of intense back and forth golf with Eric squeaking the points!",
+          "players": {
+            "eric": {
+              "front9": 44,
+              "back9": 46,
+              "total18": 90,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 3
+              }
+            },
+            "pete": {
+              "front9": 45,
+              "back9": 49,
+              "total18": 94,
               "eagle": false,
               "handicap": null,
               "magicEraser": null,
