@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-07-13T00:35:24.325Z",
+  "lastUpdated": "2026-07-25T21:33:04.283Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10635,6 +10635,52 @@
               "magicEraser": null,
               "pointsImported": {
                 "vsEric": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-07-25-hylands-gold-up4s",
+          "date": "2026-07-25",
+          "course": "Hylands Gold",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "",
+          "players": {
+            "eric": {
+              "front9": 42,
+              "back9": 41,
+              "total18": 83,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 5,
+                "vsJim": 4
+              }
+            },
+            "pete": {
+              "front9": 49,
+              "back9": 46,
+              "total18": 95,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0,
+                "vsJim": 0
+              }
+            },
+            "jim": {
+              "front9": 49,
+              "back9": 47,
+              "total18": 96,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0,
+                "vsPete": 3
               }
             }
           }
