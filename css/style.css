@@ -177,6 +177,13 @@ main {
 .events-list .col-pts.diag { color: var(--ink-muted); text-align: center; }
 .events-list .col-pts.blank {}
 .events-list .badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; background: var(--line-soft); color: var(--ink-muted); margin-left: 4px; }
+.events-list .edit-link {
+  display: inline-block; margin-left: 6px; padding: 0 5px;
+  color: var(--ink-muted); font-size: 12px; line-height: 1;
+  border-radius: 4px; opacity: 0.5;
+  transition: opacity .1s, color .1s, background .1s;
+}
+.events-list .edit-link:hover { opacity: 1; color: var(--ink); background: var(--line-soft); }
 .events-list .badge.final { background: #fee2e2; color: var(--danger); }
 .events-list .badge.match { background: var(--line-soft); color: var(--ink-muted); }
 .events-list .comments { color: var(--ink-muted); font-size: 12px; margin-top: 4px; white-space: normal; font-weight: 400; }

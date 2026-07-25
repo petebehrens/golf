@@ -126,6 +126,11 @@
       case "add":
         renderAddEvent({ pending: params.pending });
         break;
+      case "edit":
+        // #/edit/<year>/<eventId>
+        if (!isAdmin()) { location.hash = `#/season/${parts[1] || currentYear()}`; return; }
+        renderAddEvent({ year: Number(parts[1]), editEventId: parts.slice(2).join("/") });
+        break;
       case "pending":
         renderPending(params.event);
         break;
@@ -374,8 +379,10 @@
 
   // 2-player: one row per event, scores stacked, pills side by side. No wrapping.
   function drawEventsTable2Player(season, events, wrap) {
+    const admin = isAdmin();
     const rows = events.map((ev) => {
       const badges = badgesFor(ev);
+      const editIcon = admin ? editLink(season.year, ev.id) : "";
       const scoresLine = season.players.map((pk) => scoreLineFor(ev, pk)).join("");
       const ptsCells = season.players.map((pk) => {
         const p = ev.players[pk];
@@ -387,7 +394,7 @@
         <tr>
           <td class="col-date">${formatShortDate(ev.date)}</td>
           <td class="col-course">
-            ${escapeHtml(ev.course)} ${badges}
+            ${escapeHtml(ev.course)} ${badges} ${editIcon}
             ${ev.comments ? `<div class="comments">${escapeHtml(ev.comments)}</div>` : ""}
           </td>
           <td class="col-scores"><div class="scores">${scoresLine}</div></td>
@@ -413,6 +420,7 @@
   // 3-player: each event spans multiple rows (one per player who actually played).
   // Each row shows one player's score and per-opponent points (in opponent's column).
   function drawEventsTable3Player(season, events, wrap) {
+    const admin = isAdmin();
     const rowsHtml = [];
     for (const ev of events) {
       const playersInEv = season.players.filter((pk) => {
@@ -422,7 +430,8 @@
       if (!playersInEv.length) continue;
 
       const badges = badgesFor(ev);
-      const courseBlock = `${escapeHtml(ev.course)} ${badges}${ev.comments ? `<div class="comments">${escapeHtml(ev.comments)}</div>` : ""}`;
+      const editIcon = admin ? editLink(season.year, ev.id) : "";
+      const courseBlock = `${escapeHtml(ev.course)} ${badges} ${editIcon}${ev.comments ? `<div class="comments">${escapeHtml(ev.comments)}</div>` : ""}`;
 
       let first = true;
       for (const pk of playersInEv) {
@@ -469,6 +478,9 @@
     if (ev.matchPlay) badges.push(`<span class="badge match">Match Play</span>`);
     if (ev.isPreseason) badges.push(`<span class="badge match">Preseason</span>`);
     return badges.join(" ");
+  }
+  function editLink(year, eventId) {
+    return `<a class="edit-link" href="#/edit/${year}/${encodeURIComponent(eventId)}" title="Edit or delete">✎</a>`;
   }
   function played(p) {
     return p && (p.front9 != null || p.back9 != null);
@@ -839,21 +851,83 @@
   }
 
   function renderAddEvent(opts) {
+    opts = opts || {};
     mountTemplate("tpl-add-event");
     const params = parseQuery((location.hash.split("?")[1]) || "");
-    const year = params.year ? Number(params.year) : currentYear();
+    const year = opts.year || (params.year ? Number(params.year) : currentYear());
     const season = state.data.seasons[String(year)] || emptySeason(year);
+
+    // Edit mode: find the existing event
+    const editId = opts.editEventId || null;
+    let existing = null;
+    if (editId) {
+      existing = (season.events || []).find((e) => e.id === editId);
+      if (!existing) {
+        toast("Round not found — it may have been deleted", true);
+        location.hash = `#/season/${year}`;
+        return;
+      }
+    }
 
     const form = document.getElementById("event-form");
 
-    // Default date: today (if it's in this season's window) else season start
-    form.elements.date.value = new Date().toISOString().slice(0, 10);
-
-    // Populate course datalist with every canonical course we've ever played, alphabetical
+    // Populate course datalist first (before prefill so datalist is available)
     populateCourseDatalist();
 
     // Render player rows
     renderPlayerRows(season);
+
+    // Retitle + rebutton for edit mode + inject a Delete button
+    if (existing) {
+      const title = document.getElementById("add-title");
+      if (title) title.textContent = "Edit Round";
+      const submitBtn = document.getElementById("submit-btn");
+      if (submitBtn) submitBtn.textContent = "Save Changes";
+      // Inject a Delete button
+      const actions = document.querySelector(".add-event-view .actions");
+      if (actions && !document.getElementById("delete-btn")) {
+        const del = document.createElement("button");
+        del.type = "button";
+        del.id = "delete-btn";
+        del.className = "btn danger";
+        del.textContent = "Delete";
+        del.style.marginRight = "auto";
+        actions.insertBefore(del, actions.firstChild);
+        del.addEventListener("click", async () => {
+          if (!confirm(`Delete ${existing.date} ${existing.course}?\n\nThis cannot be undone.`)) return;
+          try {
+            await deleteEvent(year, editId);
+            toast("Round deleted");
+            location.hash = `#/season/${year}`;
+          } catch (e) {
+            console.error(e);
+            toast("Delete failed: " + (e.message || e), true);
+          }
+        });
+      }
+    }
+
+    // Default or prefilled values
+    if (existing) {
+      form.elements.date.value = existing.date;
+      form.elements.course.value = existing.course || "";
+      form.elements.comments.value = existing.comments || "";
+      form.elements.isFinalRound.checked = !!existing.isFinalRound;
+      // Derive holes from which nines have data
+      const anyFront = Object.values(existing.players).some((p) => p.front9 != null);
+      const anyBack = Object.values(existing.players).some((p) => p.back9 != null);
+      form.elements.holes.value = (anyFront && anyBack) ? "18" : (anyBack ? "back9" : "front9");
+      // Prefill each player's scores
+      for (const pk of season.players) {
+        const p = existing.players[pk] || {};
+        if (p.front9 != null && form.elements[`${pk}_front9`]) form.elements[`${pk}_front9`].value = p.front9;
+        if (p.back9 != null && form.elements[`${pk}_back9`]) form.elements[`${pk}_back9`].value = p.back9;
+        if (p.eagle && form.elements[`${pk}_eagle`]) form.elements[`${pk}_eagle`].checked = true;
+        if (p.handicap != null && form.elements[`${pk}_handicap`]) form.elements[`${pk}_handicap`].value = p.handicap;
+      }
+    } else {
+      form.elements.date.value = new Date().toISOString().slice(0, 10);
+    }
 
     // Holes change → toggle 18 input visibility
     form.elements.holes.addEventListener("change", () => {
@@ -864,6 +938,7 @@
 
     // Live preview
     form.addEventListener("input", () => updatePreview(season));
+    if (existing) updatePreview(season);   // seed the preview after prefill
 
     // Actions
     document.getElementById("cancel-btn").addEventListener("click", () => {
@@ -875,7 +950,6 @@
       const event = formToEvent(form, season);
 
       // At least 2 players must have scored (you need a head-to-head matchup).
-      // Players who didn't play are dropped from the event entirely.
       const playedKeys = season.players.filter((pk) => {
         const p = event.players[pk];
         return p && (p.front9 != null || p.back9 != null);
@@ -884,7 +958,6 @@
         toast(`Need scores for at least 2 players`, true);
         return;
       }
-      // Drop empty players so the event only records who actually played
       for (const pk of season.players) {
         if (!playedKeys.includes(pk)) delete event.players[pk];
       }
@@ -898,17 +971,21 @@
         event.players[pk].pointsImported = calc[pk] || {};
       }
 
+      // Preserve id + adjustment flag on edits
+      if (existing) {
+        event.id = existing.id;
+        if (existing.scoreAdjusted) event.scoreAdjusted = true;
+      }
+
       if (!Storage.hasPat()) {
-        // Suggest mode: build URL and copy / share
         const suggestUrl = location.origin + location.pathname + `#/pending?event=${Storage.encodeSuggestion({ year, event })}`;
         await suggestEvent(suggestUrl, event);
         return;
       }
 
-      // Save mode
       try {
-        await saveEvent(year, event);
-        toast("Round saved");
+        await saveEvent(year, event, existing ? existing.id : null);
+        toast(existing ? "Round updated" : "Round saved");
         location.hash = `#/season/${year}`;
       } catch (e) {
         console.error(e);
@@ -1034,14 +1111,43 @@
     return `${PLAYER_NAMES[winner]} +${margin} → +${pts}`;
   }
 
-  async function saveEvent(year, event) {
+  async function saveEvent(year, event, replaceId) {
     const data = JSON.parse(JSON.stringify(state.data));
     if (!data.seasons[String(year)]) data.seasons[String(year)] = emptySeason(year);
     const season = data.seasons[String(year)];
-    season.events.push(event);
+    let msg;
+    if (replaceId) {
+      const idx = season.events.findIndex((e) => e.id === replaceId);
+      if (idx >= 0) {
+        season.events[idx] = event;
+        msg = `Edit round: ${event.date} ${event.course}`;
+      } else {
+        // Fell through — the round we intended to replace is gone. Append instead.
+        season.events.push(event);
+        msg = `Add round: ${event.date} ${event.course}`;
+      }
+    } else {
+      season.events.push(event);
+      msg = `Add round: ${event.date} ${event.course}`;
+    }
     season.events.sort((a, b) => a.date.localeCompare(b.date));
     data.lastUpdated = new Date().toISOString();
-    const result = await Storage.saveSeasons(data, state.sha, `Add round: ${event.date} ${event.course}`);
+    const result = await Storage.saveSeasons(data, state.sha, msg);
+    state.data = data;
+    state.sha = result.sha;
+    Storage.setCache(data, result.sha);
+  }
+
+  async function deleteEvent(year, eventId) {
+    const data = JSON.parse(JSON.stringify(state.data));
+    const season = data.seasons[String(year)];
+    if (!season) throw new Error("Season not found");
+    const idx = season.events.findIndex((e) => e.id === eventId);
+    if (idx < 0) throw new Error("Round not found — already deleted?");
+    const removed = season.events[idx];
+    season.events.splice(idx, 1);
+    data.lastUpdated = new Date().toISOString();
+    const result = await Storage.saveSeasons(data, state.sha, `Delete round: ${removed.date} ${removed.course}`);
     state.data = data;
     state.sha = result.sha;
     Storage.setCache(data, result.sha);
