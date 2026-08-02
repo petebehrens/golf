@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-07-25T21:46:28.098Z",
+  "lastUpdated": "2026-08-02T17:32:22.941Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10681,6 +10681,38 @@
               "pointsImported": {
                 "vsEric": 0,
                 "vsPete": 3
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-07-31-indian-peaks-c23u",
+          "date": "2026-07-31",
+          "course": "Indian Peaks",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Jim crushed on the front, Pete on the back. In the end, a tie - thanks to a timely brat purchase at the turn!",
+          "players": {
+            "pete": {
+              "front9": 50,
+              "back9": 43,
+              "total18": 93,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsJim": 2
+              }
+            },
+            "jim": {
+              "front9": 46,
+              "back9": 51,
+              "total18": 97,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 2
               }
             }
           }
