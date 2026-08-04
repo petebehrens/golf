@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-08-04T02:39:39.792Z",
+  "lastUpdated": "2026-08-04T02:42:29.140Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10745,6 +10745,52 @@
               "magicEraser": null,
               "pointsImported": {
                 "vsPete": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-08-04-legacy-ridge-jtk8",
+          "date": "2026-08-04",
+          "course": "Legacy Ridge",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "The sub-80 score watch was on all back nine for Pete, until he 3-jacked 7 and 8, and shanked his drive on nine - but held on for the 80!",
+          "players": {
+            "eric": {
+              "front9": 43,
+              "back9": 42,
+              "total18": 85,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 0,
+                "vsJim": 3
+              }
+            },
+            "pete": {
+              "front9": 39,
+              "back9": 41,
+              "total18": 80,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 3,
+                "vsJim": 3
+              }
+            },
+            "jim": {
+              "front9": 45,
+              "back9": 46,
+              "total18": 91,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0,
+                "vsPete": 0
               }
             }
           }
