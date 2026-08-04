@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-08-02T17:32:22.941Z",
+  "lastUpdated": "2026-08-04T02:39:39.792Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10681,6 +10681,38 @@
               "pointsImported": {
                 "vsEric": 0,
                 "vsPete": 3
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-07-27-flatirons-pvnx",
+          "date": "2026-07-27",
+          "course": "Flatirons",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "With a comeback in his grasp, Pete lays a 3-jack on 9 to give Eric the win.",
+          "players": {
+            "eric": {
+              "front9": 43,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 1
+              }
+            },
+            "pete": {
+              "front9": 44,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0
               }
             }
           }
