@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-08-04T02:42:29.140Z",
+  "lastUpdated": "2026-08-15T23:59:53.709Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10791,6 +10791,38 @@
               "pointsImported": {
                 "vsEric": 0,
                 "vsPete": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-08-08-coal-creek-fnnm",
+          "date": "2026-08-08",
+          "course": "Coal Creek",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "",
+          "players": {
+            "eric": {
+              "front9": 42,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsJim": 1
+              }
+            },
+            "jim": {
+              "front9": 48,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0
               }
             }
           }
