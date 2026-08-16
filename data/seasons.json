@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-08-15T23:59:53.709Z",
+  "lastUpdated": "2026-08-16T00:00:38.022Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10816,6 +10816,38 @@
             },
             "jim": {
               "front9": 48,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-08-15-coal-creek-1vqd",
+          "date": "2026-08-15",
+          "course": "Coal Creek",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Pete started hot, but then let Eric back in, who found his swing in time.",
+          "players": {
+            "eric": {
+              "front9": 44,
+              "back9": null,
+              "total18": null,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 1
+              }
+            },
+            "pete": {
+              "front9": 46,
               "back9": null,
               "total18": null,
               "eagle": false,
