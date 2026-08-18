@@ -43,7 +43,7 @@
     // Show settings link only when PAT is configured (or path is direct)
     refreshAdminUI();
 
-    if (!location.hash) location.hash = `#/season/${currentYear()}`;
+    if (!location.hash) location.hash = `#/seasons/${currentYear()}`;
     route();
   }
 
@@ -98,7 +98,7 @@
     const hash = location.hash.slice(1) || "/season";
     const [path, query] = hash.split("?");
     const parts = path.split("/").filter(Boolean);
-    const section = parts[0] || "season";
+    const section = parts[0] || "seasons";
     const params = parseQuery(query || "");
 
     updateNav(section);
@@ -111,15 +111,22 @@
     }
 
     switch (section) {
-      case "season":
+      case "seasons":
+      case "season":   // legacy redirect
+        if (section === "season") { location.hash = `#/seasons${parts[1] ? "/" + parts[1] : "/" + currentYear()}`; return; }
         renderSeason(parts[1] ? Number(parts[1]) : currentYear());
         break;
-      case "lifetime":
+      case "statistics":
         renderLifetime();
         break;
-      case "all-years":
+      case "lifetime":
+        // Ambiguous: legacy Statistics used to live here. If second segment is a year, treat as Lifetime tab.
+        // Otherwise, redirect old Statistics URL to /statistics.
         renderAllYears();
         break;
+      case "all-years":   // legacy redirect
+        location.hash = `#/lifetime`;
+        return;
       case "settings":
         renderSettings();
         break;
@@ -128,14 +135,14 @@
         break;
       case "edit":
         // #/edit/<year>/<eventId>
-        if (!isAdmin()) { location.hash = `#/season/${parts[1] || currentYear()}`; return; }
+        if (!isAdmin()) { location.hash = `#/seasons/${parts[1] || currentYear()}`; return; }
         renderAddEvent({ year: Number(parts[1]), editEventId: parts.slice(2).join("/") });
         break;
       case "pending":
         renderPending(params.event);
         break;
       default:
-        location.hash = `#/season/${currentYear()}`;
+        location.hash = `#/seasons/${currentYear()}`;
     }
   }
 
@@ -184,7 +191,7 @@
     const years = Object.keys(state.data.seasons || {}).map(Number).sort((a, b) => b - a);
     if (!years.includes(year)) years.unshift(year);
     picker.innerHTML = years.map((y) => `<option value="${y}" ${y === year ? "selected" : ""}>${y}</option>`).join("");
-    picker.addEventListener("change", () => location.hash = `#/season/${picker.value}`);
+    picker.addEventListener("change", () => location.hash = `#/seasons/${picker.value}`);
 
     // Meta
     const meta = document.getElementById("season-meta");
@@ -192,7 +199,7 @@
     const playerNames = season.players.map((p) => PLAYER_NAMES[p]).join(" · ");
     let ruleNote = "";
     if (season.houseRules && season.houseRules.jimStrokesPerNine)
-      ruleNote = ` · Jim +${season.houseRules.jimStrokesPerNine}/9`;
+      ruleNote = ` · Jim +${season.houseRules.jimStrokesPerNine} handicap per nine holes`;
     if (season.houseRules && season.houseRules.handicap) ruleNote = " · USGA handicap";
     if (season.houseRules && season.houseRules.jimMagicEraser) ruleNote = " · Jim magic eraser";
     const winnerText = formatSeasonResult(result, season, year);
@@ -235,14 +242,41 @@
       const names = holders.map((k) => PLAYER_NAMES[k]).join(" and ");
       return ` · Season ended in a tie · <b>${names}</b> share the title`;
     } else {
-      // Current season: who's leading by combined right now
-      const combined = result.combined || {};
-      const max = Math.max(...Object.values(combined));
-      if (max === 0) return ` · Season just starting`;
-      const top = Object.keys(combined).filter((k) => combined[k] === max);
-      if (top.length === 1) return ` · <b>${PLAYER_NAMES[top[0]]}</b> currently leads`;
-      return ` · Currently <b>tied</b>`;
+      // Current season: who's leading by battle position (wins). Tiebreak by diffSum.
+      const battle = computeBattlePositions(season, result);
+      const rankedTop = season.players.slice().sort((a, b) => {
+        if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+        return battle[b].diffSum - battle[a].diffSum;
+      });
+      const leader = rankedTop[0];
+      if (!leader || battle[leader].wins === 0) return ` · Season just starting`;
+      // Are there co-leaders at the top?
+      const topGroup = season.players.filter((k) => battle[k].wins === battle[leader].wins && battle[k].diffSum === battle[leader].diffSum);
+      if (topGroup.length === 1) return ` · <b>${PLAYER_NAMES[leader]}</b> currently leads`;
+      const names = topGroup.map((k) => PLAYER_NAMES[k]).join(" and ");
+      return ` · <b>${names}</b> currently tied for the lead`;
     }
+  }
+
+  // Compute per-player wins/losses/ties + diffSum across all matchups in a season.
+  function computeBattlePositions(season, result) {
+    const totals = result.totals;
+    const battle = {};
+    for (const pk of season.players) {
+      let wins = 0, losses = 0, ties = 0, diffSum = 0;
+      for (const opp of season.players) {
+        if (opp === pk) continue;
+        const my = ((totals[pk] || {})["vs" + capitalize(opp)]) || 0;
+        const their = ((totals[opp] || {})["vs" + capitalize(pk)]) || 0;
+        const d = my - their;
+        if (d > 0) wins++;
+        else if (d < 0) losses++;
+        else ties++;
+        diffSum += d;
+      }
+      battle[pk] = { wins, losses, ties, diffSum };
+    }
+    return battle;
   }
 
   function emptySeason(year) {
@@ -321,23 +355,7 @@
     const totals = result.totals;
     const combined = result.combined;
 
-    // Compute per-player battle record: wins/losses/ties across each pairing,
-    // plus the sum of differentials (for tiebreak).
-    const battle = {};
-    for (const pk of season.players) {
-      let wins = 0, losses = 0, ties = 0, diffSum = 0;
-      for (const opp of season.players) {
-        if (opp === pk) continue;
-        const my = ((totals[pk] || {})["vs" + capitalize(opp)]) || 0;
-        const their = ((totals[opp] || {})["vs" + capitalize(pk)]) || 0;
-        const d = my - their;
-        if (d > 0) wins++;
-        else if (d < 0) losses++;
-        else ties++;
-        diffSum += d;
-      }
-      battle[pk] = { wins, losses, ties, diffSum };
-    }
+    const battle = computeBattlePositions(season, result);
 
     // Sort by battle record: wins desc, then differential sum desc, then combined pts.
     const sorted = season.players.slice().sort((a, b) => {
@@ -352,20 +370,23 @@
     if (past) {
       (result.titleHolders || []).forEach((k) => crowned.add(k));
     } else if (season.events.length) {
-      // Sole leader in wins AND differential gets the crown
       const topWins = Math.max(...season.players.map((k) => battle[k].wins));
       const topByWins = season.players.filter((k) => battle[k].wins === topWins);
-      if (topByWins.length === 1 && topWins > 0) {
-        crowned.add(topByWins[0]);
-      }
+      if (topByWins.length === 1 && topWins > 0) crowned.add(topByWins[0]);
+      else if (topByWins.length > 1 && topWins > 0) topByWins.forEach((k) => crowned.add(k));
     }
+
+    // Rank labels — each player's status (Winner/Middle/Loser or in-progress equivalents)
+    // Past 3-player seasons defer to titleHolders so 2022's E-vs-P tie shows Co-Winner.
+    const labels = rankLabels(season, battle, past, result.titleHolders);
 
     grid.innerHTML = sorted.map((pk) => {
       const isLead = crowned.has(pk);
       const b = battle[pk];
       const record = season.players.length > 2
         ? `${b.wins} – ${b.losses}${b.ties ? ` – ${b.ties}` : ""}`
-        : (b.wins === 1 ? "Leading" : b.losses === 1 ? "Behind" : "Tied");
+        : `${b.wins} – ${b.losses}${b.ties ? ` – ${b.ties}` : ""}`;
+      const statusLabel = labels[pk] || "";
 
       // Head-to-head split bars for each opponent
       const bars = season.players
@@ -394,12 +415,83 @@
       return `
         <div class="player-card ${pk} ${isLead ? "lead" : ""}">
           <div class="name"><span class="dot"></span>${PLAYER_NAMES[pk]}</div>
+          ${statusLabel ? `<div class="status-label">${statusLabel}</div>` : ""}
           <div class="record">${record}</div>
           <div class="h2h-list">${bars}</div>
           <div class="total-small">${formatPts(combined[pk] || 0)} pts total</div>
         </div>
       `;
     }).join("");
+  }
+
+  // Determine a status label per player: Winner/Co-Winner/Middle Child/Loser
+  // (or Winning/Co-Winning/Middle Child/Losing for in-progress seasons).
+  // Past 3-player seasons defer to titleHolders (which honors the E-vs-P head-to-head rule
+  // — so a 38-38 draw shows as Co-Winner even if the diffSum leans one way).
+  function rankLabels(season, battle, past, titleHolders) {
+    const players = season.players;
+    if (!players.length) return {};
+
+    if (past) {
+      const holders = titleHolders || [];
+      const labels = {};
+      if (holders.length === 0) return labels;   // no data
+      if (holders.length === 1) {
+        labels[holders[0]] = "Winner";
+      } else {
+        const label = players.length === 2 ? "Co-Winner" : "Co-Winner";
+        for (const pk of holders) labels[pk] = label;
+      }
+      // Remaining players ranked by wins/diffSum for middle/loser distinction
+      const remaining = players.filter((k) => !holders.includes(k));
+      remaining.sort((a, b) => {
+        if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+        return battle[b].diffSum - battle[a].diffSum;
+      });
+      if (remaining.length === 1) {
+        labels[remaining[0]] = "Loser";
+      } else if (remaining.length === 2) {
+        // Sole holder + two non-holders → the better non-holder is Middle Child, worse is Loser
+        // If both non-holders are tied, both are Co-Loser
+        const [a, b] = remaining;
+        if (battle[a].wins === battle[b].wins && battle[a].diffSum === battle[b].diffSum) {
+          labels[a] = labels[b] = "Co-Loser";
+        } else {
+          labels[a] = "Middle Child";
+          labels[b] = "Loser";
+        }
+      }
+      return labels;
+    }
+
+    // In-progress: group by (wins, diffSum) tiers
+    const sorted = players.slice().sort((a, b) => {
+      if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+      return battle[b].diffSum - battle[a].diffSum;
+    });
+    const tiers = [];
+    for (const pk of sorted) {
+      const tier = tiers[tiers.length - 1];
+      const same = tier && tier.length &&
+        battle[pk].wins === battle[tier[0]].wins &&
+        battle[pk].diffSum === battle[tier[0]].diffSum;
+      if (same) tier.push(pk);
+      else tiers.push([pk]);
+    }
+    const labels = {};
+    const topTier = tiers[0] || [];
+    const bottomTier = tiers.length > 1 ? tiers[tiers.length - 1] : [];
+    const middleTiers = tiers.slice(1, -1);
+    if (tiers.length === 1 && players.length > 1) {
+      for (const pk of topTier) labels[pk] = "Tied";
+      return labels;
+    }
+    if (topTier.length === 1) labels[topTier[0]] = "Winning";
+    else for (const pk of topTier) labels[pk] = "Co-Winning";
+    for (const tier of middleTiers) for (const pk of tier) labels[pk] = "In the Middle";
+    if (bottomTier.length === 1) labels[bottomTier[0]] = "Losing";
+    else if (bottomTier.length > 1) for (const pk of bottomTier) labels[pk] = "Co-Losing";
+    return labels;
   }
 
   function drawEventsTable(season) {
@@ -590,7 +682,6 @@
     const filters = readStatsFilters();
     drawLifetimeChart(filters);
     drawIndividualStatsPanel(filters);
-    drawPatternsPanel(filters);
   }
 
   function readStatsFilters() {
@@ -744,25 +835,24 @@
   // ============================================================
 
   // Panel: Individual statistics — per-player key stats card
+  // Panel: Individual statistics — everything about each player in one column.
+  // Layout uses subgrid so rows align across all cards for easy horizontal comparison.
   function drawIndividualStatsPanel(filters) {
     const wrap = document.querySelector("#stats-individual .stats-content");
     if (!wrap) return;
     const players = PLAYER_ORDER.filter((k) => filters.visible[k] !== false);
 
     // Compute overall round-winner streaks (across all filtered events, in date order).
-    // A round winner is the sole player with the most total points in that event.
-    // Ties don't extend a streak — they break it.
     const events = [];
     forEachFilteredEvent(filters, (ev) => events.push(ev));
     events.sort((a, b) => a.date.localeCompare(b.date));
 
-    const longestStreak = {};   // per player
+    const longestStreak = {};
     for (const pk of players) longestStreak[pk] = 0;
     const currentStreak = {};
     for (const pk of players) currentStreak[pk] = 0;
 
     for (const ev of events) {
-      // Compute total points per visible player who scored something in this event
       const totals = {};
       let anyoneScored = false;
       for (const pk of players) {
@@ -788,15 +878,13 @@
           }
         }
       } else {
-        // Tie at the top — reset everyone
         for (const pk of players) currentStreak[pk] = 0;
       }
     }
 
-    // Compute avg/best 18 and avg/best 9 per player.
-    // Avg/Best 9 = only 9-hole-only rounds (rounds where the player has exactly one nine).
-    const stats = {};
-    for (const pk of players) stats[pk] = { total18: [], nine: [], best9: null, best18: null };
+    // Per-player: gather 18-hole totals, 9-hole-only scores, front & back 9 lists.
+    const data = {};
+    for (const pk of players) data[pk] = { total18: [], nine: [], front: [], back: [], best18: null, best9: null };
     forEachFilteredEvent(filters, (ev) => {
       for (const pk of players) {
         const p = ev.players[pk];
@@ -805,191 +893,118 @@
         if (hasF && hasB) {
           const t = full18For(p);
           if (t != null) {
-            stats[pk].total18.push(t);
-            if (stats[pk].best18 == null || t < stats[pk].best18.score) {
-              stats[pk].best18 = { score: t, date: ev.date, course: ev.course };
+            data[pk].total18.push(t);
+            if (data[pk].best18 == null || t < data[pk].best18.score) {
+              data[pk].best18 = { score: t, date: ev.date, course: ev.course };
             }
           }
-        } else if (hasF || hasB) {
-          const s = hasF ? p.front9 : p.back9;
-          const which = hasF ? "F9" : "B9";
-          stats[pk].nine.push(s);
-          if (stats[pk].best9 == null || s < stats[pk].best9.score) {
-            stats[pk].best9 = { score: s, date: ev.date, course: ev.course, which };
-          }
-        }
-      }
-    });
-
-    const anyData = players.some((pk) => stats[pk].total18.length > 0 || stats[pk].nine.length > 0);
-    if (!anyData) { wrap.innerHTML = `<p class="muted small">No data in this range.</p>`; return; }
-
-    wrap.innerHTML = `<div class="individual-grid">${players.map((pk) => {
-      const s = stats[pk];
-      if (!s.total18.length && !s.nine.length) return "";
-      const avg18 = s.total18.length ? (s.total18.reduce((a, b) => a + b, 0) / s.total18.length).toFixed(1) : "—";
-      const avg9 = s.nine.length ? (s.nine.reduce((a, b) => a + b, 0) / s.nine.length).toFixed(1) : "—";
-      const best18Txt = s.best18
-        ? `<b>${s.best18.score}</b> <span class="muted small">${formatShortDate(s.best18.date)} · ${escapeHtml(s.best18.course || "")}</span>`
-        : "—";
-      const best9Txt = s.best9
-        ? `<b>${s.best9.score}</b> <span class="muted small">${s.best9.which} · ${formatShortDate(s.best9.date)} · ${escapeHtml(s.best9.course || "")}</span>`
-        : "—";
-      const streak = longestStreak[pk] || 0;
-      return `
-        <div class="individual-card player-card ${pk}">
-          <div class="name"><span class="dot"></span>${PLAYER_NAMES[pk]}</div>
-          <dl class="ind-stats">
-            <dt>Average 18</dt><dd>${avg18}<span class="muted small"> (${s.total18.length})</span></dd>
-            <dt>Best 18</dt><dd>${best18Txt}</dd>
-          </dl>
-          <div class="ind-sep"></div>
-          <dl class="ind-stats">
-            <dt>Average 9</dt><dd>${avg9}<span class="muted small"> (${s.nine.length})</span></dd>
-            <dt>Best 9</dt><dd>${best9Txt}</dd>
-          </dl>
-          <div class="ind-sep"></div>
-          <div class="ind-streak">
-            <div class="ind-streak-label">Longest Win Streak</div>
-            <div class="ind-streak-value">${streak} <span class="muted small">${streak === 1 ? "round" : "rounds"}</span></div>
-          </div>
-        </div>
-      `;
-    }).join("")}</div>`;
-  }
-
-  // Panel: Scoring patterns
-  function drawPatternsPanel(filters) {
-    const wrap = document.querySelector("#stats-patterns .stats-content");
-    if (!wrap) return;
-    const players = PLAYER_ORDER.filter((k) => filters.visible[k] !== false);
-
-    // Collect: 18-hole totals (full 18 rounds), 9-hole-only scores, front & back 9 avgs.
-    const data = {};
-    for (const pk of players) data[pk] = { total18: [], nine: [], front: [], back: [] };
-    forEachFilteredEvent(filters, (ev) => {
-      for (const pk of players) {
-        const p = ev.players[pk];
-        if (!p) continue;
-        const hasF = p.front9 != null, hasB = p.back9 != null;
-        if (hasF && hasB) {
-          const t = full18For(p);
-          if (t != null) data[pk].total18.push(t);
           data[pk].front.push(p.front9);
           data[pk].back.push(p.back9);
         } else if (hasF || hasB) {
-          // 9-hole-only round
-          data[pk].nine.push(hasF ? p.front9 : p.back9);
+          const s = hasF ? p.front9 : p.back9;
+          data[pk].nine.push(s);
+          if (data[pk].best9 == null || s < data[pk].best9.score) {
+            data[pk].best9 = { score: s, date: ev.date, course: ev.course, which: hasF ? "F9" : "B9" };
+          }
           if (hasF) data[pk].front.push(p.front9);
           if (hasB) data[pk].back.push(p.back9);
         }
       }
     });
 
-    const hasAny = players.some((pk) => data[pk].total18.length > 0 || data[pk].nine.length > 0);
-    if (!hasAny) { wrap.innerHTML = `<p class="muted small">No data in this range.</p>`; return; }
+    const anyData = players.some((pk) => data[pk].total18.length > 0 || data[pk].nine.length > 0);
+    if (!anyData) { wrap.innerHTML = `<p class="muted small">No data in this range.</p>`; return; }
 
-    // 18-hole distribution bins
+    // Distribution bins
     const bins18 = [
-      { label: "< 80", min: 0, max: 79 },
+      { label: "<80", min: 0, max: 79 },
       { label: "80-84", min: 80, max: 84 },
       { label: "85-89", min: 85, max: 89 },
       { label: "90-94", min: 90, max: 94 },
       { label: "95-99", min: 95, max: 99 },
       { label: "100+", min: 100, max: 9999 },
     ];
-    // 9-hole distribution bins (typical scoring range for these guys is 38-55)
     const bins9 = [
-      { label: "< 40", min: 0, max: 39 },
+      { label: "<40", min: 0, max: 39 },
       { label: "40-42", min: 40, max: 42 },
       { label: "43-45", min: 43, max: 45 },
       { label: "46-48", min: 46, max: 48 },
       { label: "49-51", min: 49, max: 51 },
       { label: "52+", min: 52, max: 999 },
     ];
-
     const distMax18 = Math.max(1, ...players.flatMap((pk) => bins18.map((b) => data[pk].total18.filter((s) => s >= b.min && s <= b.max).length)));
-    const distMax9  = Math.max(1, ...players.flatMap((pk) => bins9.map((b) => data[pk].nine.filter((s) => s >= b.min && s <= b.max).length)));
+    const distMax9 = Math.max(1, ...players.flatMap((pk) => bins9.map((b) => data[pk].nine.filter((s) => s >= b.min && s <= b.max).length)));
 
-    let html = `<div class="pattern-blocks">`;
+    function fmt(n) { return n == null ? "—" : (typeof n === "number" ? (Number.isInteger(n) ? String(n) : n.toFixed(1)) : String(n)); }
+    function stddev(arr) {
+      if (!arr.length) return null;
+      const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+      return Math.sqrt(arr.reduce((s, v) => s + (v - avg) ** 2, 0) / arr.length);
+    }
+    function mean(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null; }
 
-    // 1. 18-hole distribution (compressed)
-    const anyFull18 = players.some((pk) => data[pk].total18.length > 0);
-    if (anyFull18) {
-      html += `<div class="pattern-block"><h5>18-hole score distribution</h5><div class="dist-grid compact">`;
-      for (const pk of players) {
-        const totals = data[pk].total18;
-        if (!totals.length) continue;
-        html += `<div class="dist-row"><div class="dist-label pl-${pk}">${PLAYER_NAMES[pk]}</div>`;
-        for (const b of bins18) {
-          const n = totals.filter((s) => s >= b.min && s <= b.max).length;
-          const h = distMax18 ? Math.max(2, (n / distMax18) * 24) : 2;
-          html += `<div class="dist-bin"><div class="dist-bar bar-${pk}" style="height:${h}px" title="${b.label}: ${n} rounds"></div><div class="dist-count">${n}</div><div class="dist-blabel muted">${b.label}</div></div>`;
-        }
-        html += `</div>`;
-      }
-      html += `</div></div>`;
+    function distHtml(bins, arr, pk, maxN) {
+      return bins.map((b) => {
+        const n = arr.filter((s) => s >= b.min && s <= b.max).length;
+        const h = maxN ? Math.max(2, (n / maxN) * 26) : 2;
+        return `<div class="dist-bin"><div class="dist-bar bar-${pk}" style="height:${h}px" title="${b.label}: ${n}"></div><div class="dist-count">${n}</div><div class="dist-blabel muted">${b.label}</div></div>`;
+      }).join("");
     }
 
-    // 2. 9-hole distribution (only 9-hole-only rounds)
-    const anyNine = players.some((pk) => data[pk].nine.length > 0);
-    if (anyNine) {
-      html += `<div class="pattern-block"><h5>9-hole score distribution <span class="muted small">(9-hole rounds only)</span></h5><div class="dist-grid compact">`;
-      for (const pk of players) {
-        const nines = data[pk].nine;
-        if (!nines.length) continue;
-        html += `<div class="dist-row"><div class="dist-label pl-${pk}">${PLAYER_NAMES[pk]}</div>`;
-        for (const b of bins9) {
-          const n = nines.filter((s) => s >= b.min && s <= b.max).length;
-          const h = distMax9 ? Math.max(2, (n / distMax9) * 24) : 2;
-          html += `<div class="dist-bin"><div class="dist-bar bar-${pk}" style="height:${h}px" title="${b.label}: ${n} rounds"></div><div class="dist-count">${n}</div><div class="dist-blabel muted">${b.label}</div></div>`;
-        }
-        html += `</div>`;
-      }
-      html += `</div></div>`;
-    }
+    wrap.innerHTML = `<div class="individual-grid">${players.map((pk) => {
+      const s = data[pk];
+      const avg18 = mean(s.total18);
+      const avg9 = mean(s.nine);
+      const std18 = stddev(s.total18);
+      const std9 = stddev(s.nine);
+      const front = mean(s.front);
+      const back = mean(s.back);
+      const streak = longestStreak[pk] || 0;
 
-    // 3. Front vs Back
-    html += `<div class="pattern-block"><h5>Front 9 vs Back 9 (avg)</h5><table class="fb-table"><thead><tr><th></th><th>Front 9</th><th>Back 9</th><th>Diff</th></tr></thead><tbody>`;
-    for (const pk of players) {
-      const f = data[pk].front; const b = data[pk].back;
-      if (!f.length && !b.length) continue;
-      const favg = f.length ? f.reduce((a, x) => a + x, 0) / f.length : null;
-      const bavg = b.length ? b.reduce((a, x) => a + x, 0) / b.length : null;
-      const diff = (favg != null && bavg != null) ? (favg - bavg).toFixed(1) : "—";
-      html += `<tr><td class="pl-${pk}">${PLAYER_NAMES[pk]}</td><td>${favg != null ? favg.toFixed(1) : "—"}<span class="muted small"> (${f.length})</span></td><td>${bavg != null ? bavg.toFixed(1) : "—"}<span class="muted small"> (${b.length})</span></td><td>${diff}</td></tr>`;
-    }
-    html += `</tbody></table></div>`;
+      const avg18Txt = s.total18.length ? `<b>${fmt(avg18)}</b> <span class="muted small">${s.total18.length} rounds</span>` : "—";
+      const avg9Txt  = s.nine.length ? `<b>${fmt(avg9)}</b> <span class="muted small">${s.nine.length} rounds</span>` : "—";
+      const best18Txt = s.best18 ? `<b>${s.best18.score}</b> <span class="muted small">${escapeHtml(s.best18.course || "")}</span>` : "—";
+      const best9Txt  = s.best9  ? `<b>${s.best9.score}</b> <span class="muted small">${s.best9.which} · ${escapeHtml(s.best9.course || "")}</span>` : "—";
+      const streakTxt = `<b>${streak}</b> <span class="muted small">${streak === 1 ? "round" : "rounds"}</span>`;
 
-    // 4. 18-hole consistency
-    if (anyFull18) {
-      html += `<div class="pattern-block"><h5>18-hole consistency <span class="muted small">(stddev — lower = steadier)</span></h5><table class="fb-table"><thead><tr><th></th><th>Rounds</th><th>Avg</th><th>Best</th><th>StdDev</th></tr></thead><tbody>`;
-      for (const pk of players) {
-        const arr = data[pk].total18;
-        if (!arr.length) continue;
-        const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
-        const std = Math.sqrt(arr.reduce((s, v) => s + (v - avg) ** 2, 0) / arr.length);
-        html += `<tr><td class="pl-${pk}">${PLAYER_NAMES[pk]}</td><td>${arr.length}</td><td>${avg.toFixed(1)}</td><td>${Math.min(...arr)}</td><td>${std.toFixed(1)}</td></tr>`;
-      }
-      html += `</tbody></table></div>`;
-    }
+      return `
+        <div class="individual-card player-card ${pk}">
+          <div class="ind-cell name-cell"><div class="name"><span class="dot"></span>${PLAYER_NAMES[pk]}</div></div>
 
-    // 5. 9-hole consistency (only 9-hole-only rounds)
-    if (anyNine) {
-      html += `<div class="pattern-block"><h5>9-hole consistency <span class="muted small">(9-hole rounds only)</span></h5><table class="fb-table"><thead><tr><th></th><th>Rounds</th><th>Avg</th><th>Best</th><th>StdDev</th></tr></thead><tbody>`;
-      for (const pk of players) {
-        const arr = data[pk].nine;
-        if (!arr.length) continue;
-        const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
-        const std = Math.sqrt(arr.reduce((s, v) => s + (v - avg) ** 2, 0) / arr.length);
-        html += `<tr><td class="pl-${pk}">${PLAYER_NAMES[pk]}</td><td>${arr.length}</td><td>${avg.toFixed(1)}</td><td>${Math.min(...arr)}</td><td>${std.toFixed(1)}</td></tr>`;
-      }
-      html += `</tbody></table></div>`;
-    }
+          <div class="ind-cell"><span class="ind-lbl">Average 18</span><span class="ind-val">${avg18Txt}</span></div>
+          <div class="ind-cell"><span class="ind-lbl">Best 18</span><span class="ind-val">${best18Txt}</span></div>
+          <div class="ind-cell ind-sep-cell"></div>
 
-    html += `</div>`;
-    wrap.innerHTML = html;
+          <div class="ind-cell"><span class="ind-lbl">Average 9</span><span class="ind-val">${avg9Txt}</span></div>
+          <div class="ind-cell"><span class="ind-lbl">Best 9</span><span class="ind-val">${best9Txt}</span></div>
+          <div class="ind-cell ind-sep-cell"></div>
+
+          <div class="ind-cell"><span class="ind-lbl">Longest Win Streak</span><span class="ind-val">${streakTxt}</span></div>
+          <div class="ind-cell ind-sep-cell"></div>
+
+          <div class="ind-cell ind-dist-cell">
+            <span class="ind-lbl">18-hole distribution</span>
+            <div class="dist-mini">${distHtml(bins18, s.total18, pk, distMax18)}</div>
+          </div>
+          <div class="ind-cell ind-sep-cell"></div>
+
+          <div class="ind-cell ind-dist-cell">
+            <span class="ind-lbl">9-hole distribution <span class="muted small">(9-only)</span></span>
+            <div class="dist-mini">${distHtml(bins9, s.nine, pk, distMax9)}</div>
+          </div>
+          <div class="ind-cell ind-sep-cell"></div>
+
+          <div class="ind-cell"><span class="ind-lbl">Front 9 avg</span><span class="ind-val">${front != null ? `<b>${fmt(front)}</b> <span class="muted small">${s.front.length}</span>` : "—"}</span></div>
+          <div class="ind-cell"><span class="ind-lbl">Back 9 avg</span><span class="ind-val">${back != null ? `<b>${fmt(back)}</b> <span class="muted small">${s.back.length}</span>` : "—"}</span></div>
+          <div class="ind-cell ind-sep-cell"></div>
+
+          <div class="ind-cell"><span class="ind-lbl">Consistency 18 <span class="muted small">(stddev)</span></span><span class="ind-val">${std18 != null ? `<b>${fmt(std18)}</b>` : "—"}</span></div>
+          <div class="ind-cell"><span class="ind-lbl">Consistency 9 <span class="muted small">(stddev)</span></span><span class="ind-val">${std9 != null ? `<b>${fmt(std9)}</b>` : "—"}</span></div>
+        </div>
+      `;
+    }).join("")}</div>`;
   }
+
 
   function linearTrend(points) {
     if (points.length < 2) return null;
@@ -1025,7 +1040,17 @@
     mountTemplate("tpl-all-years");
 
     const summaries = computeAllYearsSummaries();
-    const rows = summaries.map((s) => {
+    // Total (title tally) — render FIRST above the table
+    const titleStats = aggregateTitles(summaries);
+    document.getElementById("title-card").innerHTML = `
+      <div class="title-stat"><span class="label">Eric titles</span><span class="value" style="color:${PLAYER_COLORS.eric}">${titleStats.eric}</span></div>
+      <div class="title-stat"><span class="label">Pete titles</span><span class="value" style="color:${PLAYER_COLORS.pete}">${titleStats.pete}</span></div>
+      <div class="title-stat"><span class="label">Jim titles</span><span class="value" style="color:${PLAYER_COLORS.jim}">${titleStats.jim}</span></div>
+      <div class="title-stat"><span class="label">Ties</span><span class="value">${titleStats.tie}</span></div>
+    `;
+
+    // Rows sorted latest → oldest
+    const rows = summaries.slice().sort((a, b) => b.year - a.year).map((s) => {
       const winnerKey = s.winnerKey || "tie";
       return `
         <tr>
@@ -1039,7 +1064,7 @@
       `;
     }).join("");
     document.getElementById("all-years-table").innerHTML = `
-      <table class="all-years-table">
+      <table class="all-years-table compact">
         <thead>
           <tr>
             <th>Year</th>
@@ -1052,14 +1077,6 @@
         </thead>
         <tbody>${rows}</tbody>
       </table>
-    `;
-
-    const titleStats = aggregateTitles(summaries);
-    document.getElementById("title-card").innerHTML = `
-      <div class="title-stat"><span class="label">Eric titles</span><span class="value" style="color:${PLAYER_COLORS.eric}">${titleStats.eric}</span></div>
-      <div class="title-stat"><span class="label">Pete titles</span><span class="value" style="color:${PLAYER_COLORS.pete}">${titleStats.pete}</span></div>
-      <div class="title-stat"><span class="label">Jim titles</span><span class="value" style="color:${PLAYER_COLORS.jim}">${titleStats.jim}</span></div>
-      <div class="title-stat"><span class="label">Ties</span><span class="value">${titleStats.tie}</span></div>
     `;
   }
 
@@ -1165,7 +1182,7 @@
       existing = (season.events || []).find((e) => e.id === editId);
       if (!existing) {
         toast("Round not found — it may have been deleted", true);
-        location.hash = `#/season/${year}`;
+        location.hash = `#/seasons/${year}`;
         return;
       }
     }
@@ -1199,7 +1216,7 @@
           try {
             await deleteEvent(year, editId);
             toast("Round deleted");
-            location.hash = `#/season/${year}`;
+            location.hash = `#/seasons/${year}`;
           } catch (e) {
             console.error(e);
             toast("Delete failed: " + (e.message || e), true);
@@ -1243,7 +1260,7 @@
 
     // Actions
     document.getElementById("cancel-btn").addEventListener("click", () => {
-      location.hash = `#/season/${year}`;
+      location.hash = `#/seasons/${year}`;
     });
 
     form.addEventListener("submit", async (e) => {
@@ -1287,7 +1304,7 @@
       try {
         await saveEvent(year, event, existing ? existing.id : null);
         toast(existing ? "Round updated" : "Round saved");
-        location.hash = `#/season/${year}`;
+        location.hash = `#/seasons/${year}`;
       } catch (e) {
         console.error(e);
         toast("Save failed: " + (e.message || e), true);
@@ -1507,7 +1524,7 @@
     document.getElementById("pending-preview").innerHTML = html.join("");
 
     document.getElementById("reject-btn").addEventListener("click", () => {
-      location.hash = `#/season/${year}`;
+      location.hash = `#/seasons/${year}`;
     });
     document.getElementById("approve-btn").addEventListener("click", async () => {
       try {
@@ -1518,7 +1535,7 @@
         }
         await saveEvent(year, event);
         toast("Round saved");
-        location.hash = `#/season/${year}`;
+        location.hash = `#/seasons/${year}`;
       } catch (e) {
         console.error(e);
         toast("Save failed: " + (e.message || e), true);
