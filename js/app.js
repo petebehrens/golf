@@ -968,7 +968,7 @@
       const avg18Txt = s.total18.length ? `<b>${fmt(avg18)}</b> <span class="muted small">${s.total18.length} rounds</span>` : "—";
       const avg9Txt  = s.nine.length ? `<b>${fmt(avg9)}</b> <span class="muted small">${s.nine.length} rounds</span>` : "—";
       const best18Txt = s.best18 ? `<b>${s.best18.score}</b> <span class="muted small">${escapeHtml(s.best18.course || "")}</span>` : "—";
-      const best9Txt  = s.best9  ? `<b>${s.best9.score}</b> <span class="muted small">${s.best9.which} · ${escapeHtml(s.best9.course || "")}</span>` : "—";
+      const best9Txt  = s.best9  ? `<b>${s.best9.score}</b> <span class="muted small">${escapeHtml(s.best9.course || "")}</span>` : "—";
       const streakTxt = `<b>${streak}</b> <span class="muted small">${streak === 1 ? "round" : "rounds"}</span>`;
       const frontTxt = front != null ? `<b>${fmt(front)}</b>` : "—";
       let backTxt;
@@ -1089,16 +1089,19 @@
     `;
 
     // Rows sorted latest → oldest
+    const fmtPlayer = (p) => p
+      ? `<span class="ly-avg">${p.avg != null ? p.avg.toFixed(1) : "—"}<span class="muted small"> avg</span></span> <span class="ly-pts">${formatPts(p.points)}<span class="muted small"> pts</span></span>`
+      : `<span class="muted">—</span>`;
     const rows = summaries.slice().sort((a, b) => b.year - a.year).map((s) => {
       const winnerKey = s.winnerKey || "tie";
       return `
         <tr>
           <td>${s.year}</td>
           <td><span class="winner-${winnerKey}">${s.winnerLabel}</span></td>
-          <td>${s.eric != null ? formatPts(s.eric) : "—"}</td>
-          <td>${s.pete != null ? formatPts(s.pete) : "—"}</td>
-          <td>${s.jim != null ? s.jim : "—"}</td>
-          <td>${s.notes || ""}</td>
+          <td class="ly-cell pl-eric">${fmtPlayer(s.perPlayer.eric)}</td>
+          <td class="ly-cell pl-pete">${fmtPlayer(s.perPlayer.pete)}</td>
+          <td class="ly-cell pl-jim">${fmtPlayer(s.perPlayer.jim)}</td>
+          <td class="ly-notes">${s.notes || ""}</td>
         </tr>
       `;
     }).join("");
@@ -1107,10 +1110,10 @@
         <thead>
           <tr>
             <th>Year</th>
-            <th>Season Winner</th>
-            <th>Eric (vs P)</th>
-            <th>Pete (vs E)</th>
-            <th>Jim (vs E / vs P)</th>
+            <th>Winner</th>
+            <th class="pl-eric">Eric</th>
+            <th class="pl-pete">Pete</th>
+            <th class="pl-jim">Jim</th>
             <th>Notes</th>
           </tr>
         </thead>
@@ -1125,18 +1128,34 @@
     for (const y of years) {
       const season = state.data.seasons[String(y)];
       const result = Scoring.determineSeasonResult(season, true);
-      const totals = result.totals;
+      const combined = result.combined;
 
-      const ericPts = totals.eric ? totals.eric.vsPete : null;
-      const petePts = totals.pete ? totals.pete.vsEric : null;
-      let jimText = null;
-      if (totals.jim) {
-        jimText = `${formatPts(totals.jim.vsEric || 0)} / ${formatPts(totals.jim.vsPete || 0)}`;
+      // Per-player: avg 18-hole score + total points scored across all matchups
+      const perPlayer = { eric: null, pete: null, jim: null };
+      for (const pk of ["eric", "pete", "jim"]) {
+        const scores = [];
+        let points = 0;
+        let rounds = 0;
+        for (const ev of (season.events || [])) {
+          const p = ev.players[pk];
+          if (!p) continue;
+          const played = (p.front9 != null || p.back9 != null);
+          if (!played) continue;
+          rounds++;
+          const t = (p.total18 != null) ? p.total18
+                   : (p.front9 != null && p.back9 != null) ? p.front9 + p.back9
+                   : null;
+          if (t != null) scores.push(t);
+          const pi = p.pointsImported || {};
+          for (const v of Object.values(pi)) points += (v || 0);
+        }
+        if (rounds > 0) {
+          const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+          perPlayer[pk] = { avg, points, rounds };
+        }
       }
 
-      // Season winner — past only. Use new title-holders rule (E-vs-P decides 3-player years
-      // unless Jim's combined exceeds both).
-      const combined = result.combined;
+      // Season winner (past seasons only)
       let winnerKey = null;
       let winnerLabel = "—";
       const past = isPastSeason(y);
@@ -1153,9 +1172,7 @@
 
       out.push({
         year: y,
-        eric: ericPts,
-        pete: petePts,
-        jim: jimText,
+        perPlayer,
         winnerKey,
         winnerLabel,
         titleHolders: past ? holders : [],
