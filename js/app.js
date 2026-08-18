@@ -321,42 +321,82 @@
     const totals = result.totals;
     const combined = result.combined;
 
-    // Sort players by combined points desc (winner first)
-    const sorted = season.players.slice().sort((a, b) => (combined[b] || 0) - (combined[a] || 0));
+    // Compute per-player battle record: wins/losses/ties across each pairing,
+    // plus the sum of differentials (for tiebreak).
+    const battle = {};
+    for (const pk of season.players) {
+      let wins = 0, losses = 0, ties = 0, diffSum = 0;
+      for (const opp of season.players) {
+        if (opp === pk) continue;
+        const my = ((totals[pk] || {})["vs" + capitalize(opp)]) || 0;
+        const their = ((totals[opp] || {})["vs" + capitalize(pk)]) || 0;
+        const d = my - their;
+        if (d > 0) wins++;
+        else if (d < 0) losses++;
+        else ties++;
+        diffSum += d;
+      }
+      battle[pk] = { wins, losses, ties, diffSum };
+    }
 
-    // Past seasons: crown the title-holders (could be multiple in a tie).
-    // Current/future: crown the sole leader if there's no tie at the top by combined points.
+    // Sort by battle record: wins desc, then differential sum desc, then combined pts.
+    const sorted = season.players.slice().sort((a, b) => {
+      if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+      if (battle[b].diffSum !== battle[a].diffSum) return battle[b].diffSum - battle[a].diffSum;
+      return (combined[b] || 0) - (combined[a] || 0);
+    });
+
+    // Past seasons: crown title-holders. Current: crown by battle position.
     const past = isPastSeason(season.year);
     let crowned = new Set();
     if (past) {
       (result.titleHolders || []).forEach((k) => crowned.add(k));
-    } else {
-      const leadVal = Math.max(...season.players.map((k) => combined[k] || 0));
-      const leaders = season.players.filter((k) => (combined[k] || 0) === leadVal);
-      if (leadVal > 0 && leaders.length === 1) crowned.add(leaders[0]);
+    } else if (season.events.length) {
+      // Sole leader in wins AND differential gets the crown
+      const topWins = Math.max(...season.players.map((k) => battle[k].wins));
+      const topByWins = season.players.filter((k) => battle[k].wins === topWins);
+      if (topByWins.length === 1 && topWins > 0) {
+        crowned.add(topByWins[0]);
+      }
     }
 
     grid.innerHTML = sorted.map((pk) => {
       const isLead = crowned.has(pk);
-      // Build pair lines: "62 - 30 vs Pete" — for each opponent
-      const pairLines = season.players
+      const b = battle[pk];
+      const record = season.players.length > 2
+        ? `${b.wins} – ${b.losses}${b.ties ? ` – ${b.ties}` : ""}`
+        : (b.wins === 1 ? "Leading" : b.losses === 1 ? "Behind" : "Tied");
+
+      // Head-to-head split bars for each opponent
+      const bars = season.players
         .filter((opp) => opp !== pk)
         .map((opp) => {
           const myPts = ((totals[pk] || {})["vs" + capitalize(opp)]) || 0;
           const oppPts = ((totals[opp] || {})["vs" + capitalize(pk)]) || 0;
-          return `<div class="pair-line">
-            <span class="me">${formatPts(myPts)}</span>
-            <span class="dash">–</span>
-            <span class="opp">${formatPts(oppPts)} <span class="vs">vs ${PLAYER_NAMES[opp]}</span></span>
-          </div>`;
+          const total = myPts + oppPts;
+          const myPct = total > 0 ? (myPts / total) * 100 : 50;
+          const oppPct = 100 - myPct;
+          return `
+            <div class="h2h">
+              <div class="h2h-label">
+                <span class="h2h-me">${PLAYER_NAMES[pk]} ${formatPts(myPts)}</span>
+                <span class="h2h-vs">vs ${PLAYER_NAMES[opp]}</span>
+                <span class="h2h-them">${formatPts(oppPts)}</span>
+              </div>
+              <div class="h2h-bar">
+                <div class="h2h-bar-me bar-${pk}" style="width: ${myPct}%"></div>
+                <div class="h2h-bar-them bar-${opp}-soft" style="width: ${oppPct}%"></div>
+              </div>
+            </div>
+          `;
         }).join("");
-      // For 2-player heads-up, suppress redundant subtext (Pete asked: don't need "vs P")
-      const showPairs = season.players.length > 2;
+
       return `
         <div class="player-card ${pk} ${isLead ? "lead" : ""}">
           <div class="name"><span class="dot"></span>${PLAYER_NAMES[pk]}</div>
-          <div class="total">${formatPts(combined[pk] || 0)}</div>
-          ${showPairs ? pairLines : ""}
+          <div class="record">${record}</div>
+          <div class="h2h-list">${bars}</div>
+          <div class="total-small">${formatPts(combined[pk] || 0)} pts total</div>
         </div>
       `;
     }).join("");

@@ -118,16 +118,35 @@ main {
   width: 10px; height: 10px; border-radius: 50%; display: inline-block;
 }
 .player-card .total { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 2px 0; }
-.player-card .pair-line {
-  font-size: 12px;
+.player-card .record {
+  font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+  margin: 4px 0 8px;
   font-variant-numeric: tabular-nums;
-  display: grid; grid-template-columns: auto auto 1fr;
-  column-gap: 6px; align-items: baseline;
 }
-.player-card .pair-line .me { font-weight: 600; }
-.player-card .pair-line .dash { color: var(--ink-muted); }
-.player-card .pair-line .opp { color: var(--ink-muted); }
-.player-card .pair-line .vs { color: var(--ink-muted); }
+.player-card .h2h-list { display: grid; gap: 8px; margin-top: 4px; }
+.player-card .h2h .h2h-label {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 8px;
+  font-size: 11px; font-variant-numeric: tabular-nums;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+.player-card .h2h .h2h-me { font-weight: 600; }
+.player-card .h2h .h2h-vs { opacity: 0.55; }
+.player-card .h2h .h2h-them { opacity: 0.55; }
+.player-card .h2h-bar {
+  display: flex; height: 8px; border-radius: 4px; overflow: hidden;
+  background: rgba(0,0,0,0.06);
+}
+.player-card .h2h-bar > div { min-width: 0; }
+.player-card .h2h-bar .bar-eric { background: var(--eric); }
+.player-card .h2h-bar .bar-pete { background: var(--pete); }
+.player-card .h2h-bar .bar-jim  { background: var(--jim); }
+.player-card .h2h-bar .bar-eric-soft { background: #b5d4f4; }
+.player-card .h2h-bar .bar-pete-soft { background: #f7c1c1; }
+.player-card .h2h-bar .bar-jim-soft  { background: #c0dd97; }
+.player-card .total-small {
+  font-size: 11px; opacity: 0.55; margin-top: 8px; font-variant-numeric: tabular-nums;
+}
 
 .player-card.eric .name .dot { background: var(--eric); }
 .player-card.pete .name .dot { background: var(--pete); }
@@ -135,9 +154,6 @@ main {
 .player-card.eric { background: var(--eric-soft); color: var(--eric-ink); }
 .player-card.pete { background: var(--pete-soft); color: var(--pete-ink); }
 .player-card.jim  { background: var(--jim-soft); color: var(--jim-ink); }
-.player-card.eric .pair-line .me { color: var(--eric); }
-.player-card.pete .pair-line .me { color: var(--pete); }
-.player-card.jim  .pair-line .me { color: var(--jim); }
 .player-card.lead .name::after { content: " 👑"; }
 
 .standings-card { padding: 14px 16px; }
