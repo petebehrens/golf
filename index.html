@@ -19,9 +19,9 @@
       <span class="brand-text">Golf</span>
     </div>
     <nav class="nav">
-      <a href="#/season" data-route="season">Season</a>
-      <a href="#/lifetime" data-route="lifetime">Lifetime</a>
-      <a href="#/all-years" data-route="all-years">All Years</a>
+      <a href="#/season" data-route="season">Seasons</a>
+      <a href="#/lifetime" data-route="lifetime">Statistics</a>
+      <a href="#/all-years" data-route="all-years">Lifetime</a>
       <a href="#/settings" data-route="settings" id="settings-link" class="settings-link hidden" aria-label="Settings">⚙</a>
     </nav>
   </header>
@@ -84,12 +84,29 @@
         <canvas id="lifetime-chart"></canvas>
       </div>
       <div class="lifetime-stats" id="lifetime-stats"></div>
+
+      <div class="stats-panel" id="stats-h2h">
+        <h3>Head-to-head records</h3>
+        <div class="stats-content"></div>
+      </div>
+      <div class="stats-panel" id="stats-courses">
+        <h3>Course insights</h3>
+        <div class="stats-content"></div>
+      </div>
+      <div class="stats-panel" id="stats-patterns">
+        <h3>Score patterns</h3>
+        <div class="stats-content"></div>
+      </div>
+      <div class="stats-panel" id="stats-milestones">
+        <h3>Milestones</h3>
+        <div class="stats-content"></div>
+      </div>
     </section>
   </template>
 
   <template id="tpl-all-years">
     <section class="all-years-view">
-      <h2>Year-over-Year</h2>
+      <h2>Lifetime</h2>
       <div id="all-years-table"></div>
       <div class="title-card" id="title-card"></div>
     </section>

@@ -77,13 +77,71 @@ input, select, textarea, button {
 .bottombar .grow { flex: 1; }
 
 /* --- CARDS --- */
-.card, .chart-card, .totals-card, .events-card, .preview-card, .title-card, .lifetime-stats {
+.card, .chart-card, .totals-card, .events-card, .preview-card, .title-card, .lifetime-stats, .stats-panel {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: var(--shadow);
 }
+.stats-panel h3 { margin-top: 0; }
+.stats-content { font-size: 13px; }
+
+/* Head-to-head panel */
+.h2h-card { padding: 12px 0; border-top: 1px solid var(--line-soft); }
+.h2h-card:first-child { border-top: none; padding-top: 4px; }
+.h2h-card h4 { font-size: 13px; font-weight: 600; margin: 0 0 6px; color: var(--ink); }
+.h2h-record {
+  font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; margin-bottom: 8px;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.h2h-record .dash { color: var(--ink-muted); font-weight: 400; font-size: 20px; }
+.h2h-record .muted { font-size: 13px; font-weight: 500; color: var(--ink-muted); }
+.h2h-details { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 13px; }
+.h2h-details dt { color: var(--ink-muted); font-weight: 500; }
+.h2h-details dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+/* Course table */
+.courses-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.courses-table th, .courses-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--line-soft); }
+.courses-table th { font-size: 11px; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; letter-spacing: 0.04em; }
+.courses-table th.col-p, .courses-table td.col-p { text-align: right; font-variant-numeric: tabular-nums; }
+.courses-table th.col-dom, .courses-table td.col-dom { text-align: right; font-weight: 600; }
+.courses-table th.col-rounds, .courses-table td.col-rounds { text-align: right; color: var(--ink-muted); }
+.courses-table .avg { font-weight: 600; }
+.courses-table .best { }
+.courses-table .n { font-size: 11px; }
+
+/* Score patterns */
+.pattern-blocks { display: grid; gap: 20px; }
+.pattern-block h5 { font-size: 12px; text-transform: uppercase; color: var(--ink-muted); letter-spacing: 0.04em; margin: 0 0 8px; font-weight: 600; }
+.dist-grid { display: grid; gap: 12px; }
+.dist-row { display: grid; grid-template-columns: 60px repeat(6, 1fr); gap: 4px; align-items: end; }
+.dist-label { font-weight: 600; font-size: 13px; align-self: center; }
+.dist-bin { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.dist-bar { width: 100%; max-width: 36px; border-radius: 3px 3px 0 0; }
+.dist-bar.bar-eric { background: var(--eric); }
+.dist-bar.bar-pete { background: var(--pete); }
+.dist-bar.bar-jim  { background: var(--jim); }
+.dist-count { font-size: 11px; font-variant-numeric: tabular-nums; font-weight: 600; }
+.dist-blabel { font-size: 10px; }
+.fb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fb-table th, .fb-table td { padding: 5px 8px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--line-soft); }
+.fb-table th:first-child, .fb-table td:first-child { text-align: left; font-weight: 500; }
+.fb-table th { font-size: 11px; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; letter-spacing: 0.04em; }
+
+/* Milestones */
+.milestone-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.milestone-card { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); }
+.milestones { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 6px 0 0; font-size: 13px; }
+.milestones dt { color: var(--ink-muted); font-weight: 500; }
+.milestones dd { margin: 0; font-variant-numeric: tabular-nums; }
+.milestones dd b { font-weight: 700; font-size: 15px; }
+
+.pl-eric { color: var(--eric); font-weight: 600; }
+.pl-pete { color: var(--pete); font-weight: 600; }
+.pl-jim  { color: var(--jim); font-weight: 600; }
 .chart-card { padding: 12px; height: 320px; position: relative; }
 .chart-card.tall { height: 400px; }
 .chart-card canvas { max-height: 100%; }

@@ -562,23 +562,76 @@
       rangeSelect.insertBefore(opt, customOpt);
     }
 
+    // Default to current year (fallback to All time if no data for it)
+    const cy = currentYear();
+    if (years.includes(cy)) rangeSelect.value = `year-${cy}`;
+
     const onChange = () => {
       customSpan.classList.toggle("hidden", rangeSelect.value !== "custom");
-      drawLifetimeChart();
+      redrawStatistics();
     };
 
     rangeSelect.addEventListener("change", onChange);
-    document.getElementById("show-trend").addEventListener("change", drawLifetimeChart);
-    document.getElementById("range-from").addEventListener("change", drawLifetimeChart);
-    document.getElementById("range-to").addEventListener("change", drawLifetimeChart);
+    document.getElementById("show-trend").addEventListener("change", redrawStatistics);
+    document.getElementById("range-from").addEventListener("change", redrawStatistics);
+    document.getElementById("range-to").addEventListener("change", redrawStatistics);
     document.querySelectorAll('.player-toggles input[data-player]').forEach((el) =>
-      el.addEventListener("change", drawLifetimeChart));
+      el.addEventListener("change", redrawStatistics));
 
     // Course filter — only show courses with 2+ rounds, alphabetical
     populateCourseFilter();
-    document.getElementById("course-filter").addEventListener("change", drawLifetimeChart);
+    document.getElementById("course-filter").addEventListener("change", redrawStatistics);
 
-    drawLifetimeChart();
+    redrawStatistics();
+  }
+
+  // Master re-render for the statistics view — chart + all panels
+  function redrawStatistics() {
+    const filters = readStatsFilters();
+    drawLifetimeChart(filters);
+    drawH2HPanel(filters);
+    drawCoursesPanel(filters);
+    drawPatternsPanel(filters);
+    drawMilestonesPanel(filters);
+  }
+
+  function readStatsFilters() {
+    const rangeSelect = document.getElementById("range-picker");
+    let from = null, to = null;
+    const range = rangeSelect.value;
+    if (range && range.startsWith("year-")) {
+      const y = range.slice(5);
+      from = `${y}-01-01`; to = `${y}-12-31`;
+    } else if (range === "custom") {
+      from = document.getElementById("range-from").value || null;
+      to = document.getElementById("range-to").value || null;
+    }
+    const visible = {};
+    document.querySelectorAll('.player-toggles input[data-player]').forEach((el) => {
+      visible[el.dataset.player] = el.checked;
+    });
+    const course = document.getElementById("course-filter").value || null;
+    return { from, to, visible, course, range };
+  }
+
+  // Iterate every event once, respecting range + course filters, calling cb(event, year).
+  function forEachFilteredEvent(filters, cb) {
+    for (const yKey of Object.keys(state.data.seasons || {})) {
+      const season = state.data.seasons[yKey];
+      for (const ev of season.events) {
+        if (filters.from && ev.date < filters.from) continue;
+        if (filters.to && ev.date > filters.to) continue;
+        if (filters.course && (ev.course || "").trim() !== filters.course) continue;
+        cb(ev, Number(yKey));
+      }
+    }
+  }
+
+  function full18For(p) {
+    if (!p) return null;
+    if (p.total18 != null) return p.total18;
+    if (p.front9 != null && p.back9 != null) return p.front9 + p.back9;
+    return null;
   }
 
   function populateCourseFilter() {
@@ -596,30 +649,11 @@
     }
   }
 
-  function drawLifetimeChart() {
+  function drawLifetimeChart(filters) {
     const select = document.getElementById("range-picker");
     if (!select) return; // route changed
-    const range = select.value;
-    let from = null, to = null;
-
-    const today = new Date();
-    if (range && range.startsWith("year-")) {
-      const y = range.slice(5);
-      from = `${y}-01-01`; to = `${y}-12-31`;
-    } else if (range === "custom") {
-      from = document.getElementById("range-from").value || null;
-      to = document.getElementById("range-to").value || null;
-    }
-    // "all": from/to remain null
-
-    // Player visibility from toggles
-    const visible = {};
-    document.querySelectorAll('.player-toggles input[data-player]').forEach((el) => {
-      visible[el.dataset.player] = el.checked;
-    });
-
-    // Course filter
-    const courseFilter = document.getElementById("course-filter").value;
+    filters = filters || readStatsFilters();
+    const { from, to, visible, course: courseFilter } = filters;
 
     // Collect every event from every season, with a per-player 18-equivalent score
     const points = { eric: [], pete: [], jim: [] };
@@ -727,6 +761,407 @@
       `);
     }
     wrap.innerHTML = cards.join("");
+  }
+
+  // ============================================================
+  // STATISTICS PANELS
+  // ============================================================
+
+  // Panel: Head-to-head records (per visible pair)
+  function drawH2HPanel(filters) {
+    const wrap = document.querySelector("#stats-h2h .stats-content");
+    if (!wrap) return;
+    const players = PLAYER_ORDER.filter((k) => filters.visible[k] !== false);
+    if (players.length < 2) {
+      wrap.innerHTML = `<p class="muted small">Enable at least 2 players.</p>`;
+      return;
+    }
+
+    // Collect events into per-pair round outcomes
+    const pairs = [];
+    for (let i = 0; i < players.length; i++) {
+      for (let j = i + 1; j < players.length; j++) {
+        pairs.push([players[i], players[j]]);
+      }
+    }
+    const stats = pairs.map(([a, b]) => computeH2H(a, b, filters));
+    wrap.innerHTML = stats.map((s) => renderH2HCard(s)).join("");
+    if (!stats.length) wrap.innerHTML = `<p class="muted small">No matchups found.</p>`;
+  }
+
+  function computeH2H(a, b, filters) {
+    const rounds = [];
+    forEachFilteredEvent(filters, (ev) => {
+      const pa = ev.players[a]; const pb = ev.players[b];
+      if (!pa || !pb) return;
+      // Only rounds where both actually played (have a score OR imported points against each other)
+      const aPts = (pa.pointsImported || {})["vs" + capitalize(b)] || 0;
+      const bPts = (pb.pointsImported || {})["vs" + capitalize(a)] || 0;
+      const bothPlayed = (pa.front9 != null || pa.back9 != null) && (pb.front9 != null || pb.back9 != null);
+      if (!bothPlayed && !aPts && !bPts) return;
+      const diff = aPts - bPts;
+      rounds.push({
+        date: ev.date, course: ev.course,
+        aPts, bPts, diff,
+        aFull18: full18For(pa), bFull18: full18For(pb),
+        aFront: pa.front9, bFront: pb.front9,
+        aBack: pa.back9, bBack: pb.back9,
+      });
+    });
+    rounds.sort((r1, r2) => r1.date.localeCompare(r2.date));
+
+    let aWins = 0, bWins = 0, ties = 0;
+    let curStreakPlayer = null, curStreak = 0;
+    let bestStreak = { player: null, len: 0 };
+    let comebacks = 0;
+    for (const r of rounds) {
+      let winner = null;
+      if (r.diff > 0) { aWins++; winner = a; }
+      else if (r.diff < 0) { bWins++; winner = b; }
+      else ties++;
+
+      if (winner) {
+        if (curStreakPlayer === winner) curStreak++;
+        else { curStreakPlayer = winner; curStreak = 1; }
+        if (curStreak > bestStreak.len) bestStreak = { player: winner, len: curStreak };
+      } else {
+        curStreakPlayer = null; curStreak = 0;
+      }
+
+      // Comeback: lost front 9 by any margin, won 18 total by any margin
+      if (r.aFront != null && r.bFront != null && r.aFull18 != null && r.bFull18 != null) {
+        if (r.aFront > r.bFront && r.aFull18 < r.bFull18) comebacks++;   // A comeback
+        if (r.bFront > r.aFront && r.bFull18 < r.aFull18) comebacks++;   // B comeback
+      }
+    }
+
+    // Biggest single-round margin
+    let biggest = null;
+    for (const r of rounds) {
+      const mag = Math.abs(r.diff);
+      if (mag > 0 && (!biggest || mag > Math.abs(biggest.diff))) biggest = r;
+    }
+
+    return {
+      a, b, rounds, aWins, bWins, ties,
+      curStreakPlayer, curStreak, bestStreak, comebacks, biggest,
+    };
+  }
+
+  function renderH2HCard(s) {
+    if (!s.rounds.length) {
+      return `<div class="h2h-card"><h4>${PLAYER_NAMES[s.a]} vs ${PLAYER_NAMES[s.b]}</h4><p class="muted small">No rounds in this range.</p></div>`;
+    }
+    const streakTxt = s.curStreak > 1
+      ? `<span class="pl-${s.curStreakPlayer}">${PLAYER_NAMES[s.curStreakPlayer]}</span> won last ${s.curStreak}`
+      : (s.curStreak === 1 ? `<span class="pl-${s.curStreakPlayer}">${PLAYER_NAMES[s.curStreakPlayer]}</span> won last round` : "—");
+    const bestStreakTxt = s.bestStreak.len > 1
+      ? `<span class="pl-${s.bestStreak.player}">${PLAYER_NAMES[s.bestStreak.player]}</span> ${s.bestStreak.len} in a row`
+      : "—";
+    const biggestTxt = s.biggest
+      ? (() => {
+          const winner = s.biggest.diff > 0 ? s.a : s.b;
+          const mag = Math.abs(s.biggest.diff);
+          return `<span class="pl-${winner}">${PLAYER_NAMES[winner]}</span> +${mag} <span class="muted">— ${formatShortDate(s.biggest.date)} · ${escapeHtml(s.biggest.course || "")}</span>`;
+        })()
+      : "—";
+    return `
+      <div class="h2h-card">
+        <h4>${PLAYER_NAMES[s.a]} vs ${PLAYER_NAMES[s.b]} <span class="muted small">— ${s.rounds.length} rounds</span></h4>
+        <div class="h2h-record">
+          <span class="pl-${s.a}">${s.aWins}</span>
+          <span class="dash">·</span>
+          <span class="muted">${s.ties} tied</span>
+          <span class="dash">·</span>
+          <span class="pl-${s.b}">${s.bWins}</span>
+        </div>
+        <dl class="h2h-details">
+          <dt>Current streak</dt><dd>${streakTxt}</dd>
+          <dt>Longest streak</dt><dd>${bestStreakTxt}</dd>
+          <dt>Biggest single-round win</dt><dd>${biggestTxt}</dd>
+          <dt>Comebacks (lost F9, won 18)</dt><dd>${s.comebacks}</dd>
+        </dl>
+      </div>
+    `;
+  }
+
+  // Panel: Course insights
+  function drawCoursesPanel(filters) {
+    const wrap = document.querySelector("#stats-courses .stats-content");
+    if (!wrap) return;
+    const players = PLAYER_ORDER.filter((k) => filters.visible[k] !== false);
+    if (!players.length) { wrap.innerHTML = ""; return; }
+
+    // Per-course, per-player: list of 18-hole scores
+    const perCourse = {};
+    forEachFilteredEvent(filters, (ev) => {
+      const c = (ev.course || "").trim();
+      if (!c) return;
+      perCourse[c] = perCourse[c] || {};
+      for (const pk of players) {
+        const p = ev.players[pk];
+        const t = full18For(p);
+        if (t == null) continue;
+        perCourse[c][pk] = perCourse[c][pk] || [];
+        perCourse[c][pk].push(t);
+      }
+    });
+
+    // Keep courses with ≥ 3 total rounds (across visible players)
+    const rows = Object.entries(perCourse)
+      .map(([course, byPlayer]) => {
+        const totalRounds = Object.values(byPlayer).reduce((s, arr) => s + arr.length, 0);
+        const perP = {};
+        for (const pk of players) {
+          const arr = byPlayer[pk] || [];
+          perP[pk] = arr.length
+            ? { avg: arr.reduce((a, b) => a + b, 0) / arr.length, best: Math.min(...arr), n: arr.length }
+            : null;
+        }
+        // Dominant player: lowest avg AND ≥ 2 rounds
+        const eligible = Object.entries(perP).filter(([_, s]) => s && s.n >= 2);
+        let dominant = null;
+        if (eligible.length >= 2) {
+          eligible.sort((x, y) => x[1].avg - y[1].avg);
+          dominant = eligible[0][0];
+        }
+        return { course, totalRounds, perP, dominant };
+      })
+      .filter((r) => r.totalRounds >= 3)
+      .sort((a, b) => b.totalRounds - a.totalRounds);
+
+    if (!rows.length) {
+      wrap.innerHTML = `<p class="muted small">No courses with 3+ rounds in this range.</p>`;
+      return;
+    }
+
+    const header = `<tr><th class="col-course">Course</th><th class="col-rounds">n</th>${players.map((pk) => `<th class="col-p pl-${pk}">${PLAYER_NAMES[pk]}</th>`).join("")}<th class="col-dom">Best</th></tr>`;
+    const body = rows.slice(0, 20).map((r) => {
+      const cells = players.map((pk) => {
+        const s = r.perP[pk];
+        if (!s) return `<td class="col-p">—</td>`;
+        return `<td class="col-p"><span class="avg">${s.avg.toFixed(1)}</span> <span class="best muted">/ ${s.best}</span> <span class="n muted small">(${s.n})</span></td>`;
+      }).join("");
+      const domCell = r.dominant ? `<td class="col-dom pl-${r.dominant}">${PLAYER_NAMES[r.dominant]}</td>` : `<td class="col-dom muted">—</td>`;
+      return `<tr><td class="col-course">${escapeHtml(r.course)}</td><td class="col-rounds">${r.totalRounds}</td>${cells}${domCell}</tr>`;
+    }).join("");
+    wrap.innerHTML = `<table class="courses-table"><thead>${header}</thead><tbody>${body}</tbody></table>
+      ${rows.length > 20 ? `<p class="muted small">Showing top 20 of ${rows.length} courses. Narrow the range or filter by course to see others.</p>` : ""}`;
+  }
+
+  // Panel: Score patterns
+  function drawPatternsPanel(filters) {
+    const wrap = document.querySelector("#stats-patterns .stats-content");
+    if (!wrap) return;
+    const players = PLAYER_ORDER.filter((k) => filters.visible[k] !== false);
+
+    // Collect per-player scores + front + back + month
+    const data = {};
+    for (const pk of players) data[pk] = { total: [], front: [], back: [], byMonth: {} };
+    forEachFilteredEvent(filters, (ev) => {
+      const month = Number(ev.date.slice(5, 7));
+      for (const pk of players) {
+        const p = ev.players[pk];
+        if (!p) continue;
+        if (p.front9 != null) data[pk].front.push(p.front9);
+        if (p.back9 != null) data[pk].back.push(p.back9);
+        const t = full18For(p);
+        if (t != null) {
+          data[pk].total.push(t);
+          data[pk].byMonth[month] = data[pk].byMonth[month] || [];
+          data[pk].byMonth[month].push(t);
+        }
+      }
+    });
+
+    const hasAny = players.some((pk) => data[pk].total.length > 0);
+    if (!hasAny) { wrap.innerHTML = `<p class="muted small">No data in this range.</p>`; return; }
+
+    // Distribution bins
+    const bins = [
+      { label: "< 80", min: 0, max: 79 },
+      { label: "80-84", min: 80, max: 84 },
+      { label: "85-89", min: 85, max: 89 },
+      { label: "90-94", min: 90, max: 94 },
+      { label: "95-99", min: 95, max: 99 },
+      { label: "100+", min: 100, max: 9999 },
+    ];
+    const distMax = Math.max(1, ...players.flatMap((pk) => bins.map((b) => data[pk].total.filter((s) => s >= b.min && s <= b.max).length)));
+
+    // Months present
+    const monthsPresent = Array.from(new Set(players.flatMap((pk) => Object.keys(data[pk].byMonth).map(Number)))).sort((a, b) => a - b);
+    const MONTH_NAMES = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    let html = `<div class="pattern-blocks">`;
+
+    // 1. Distribution
+    html += `<div class="pattern-block"><h5>18-hole score distribution</h5><div class="dist-grid">`;
+    for (const pk of players) {
+      const totals = data[pk].total;
+      if (!totals.length) continue;
+      html += `<div class="dist-row"><div class="dist-label pl-${pk}">${PLAYER_NAMES[pk]}</div>`;
+      for (const b of bins) {
+        const n = totals.filter((s) => s >= b.min && s <= b.max).length;
+        const h = distMax ? Math.max(2, (n / distMax) * 40) : 2;
+        html += `<div class="dist-bin"><div class="dist-bar bar-${pk}" style="height:${h}px" title="${b.label}: ${n} rounds"></div><div class="dist-count">${n}</div><div class="dist-blabel muted">${b.label}</div></div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div></div>`;
+
+    // 2. Front vs Back
+    html += `<div class="pattern-block"><h5>Front 9 vs Back 9 (avg)</h5><table class="fb-table"><thead><tr><th></th><th>Front 9</th><th>Back 9</th><th>Diff</th></tr></thead><tbody>`;
+    for (const pk of players) {
+      const f = data[pk].front; const b = data[pk].back;
+      if (!f.length && !b.length) continue;
+      const favg = f.length ? f.reduce((a, b) => a + b, 0) / f.length : null;
+      const bavg = b.length ? b.reduce((a, b) => a + b, 0) / b.length : null;
+      const diff = (favg != null && bavg != null) ? (favg - bavg).toFixed(1) : "—";
+      html += `<tr><td class="pl-${pk}">${PLAYER_NAMES[pk]}</td><td>${favg != null ? favg.toFixed(1) : "—"}<span class="muted small"> (${f.length})</span></td><td>${bavg != null ? bavg.toFixed(1) : "—"}<span class="muted small"> (${b.length})</span></td><td>${diff}</td></tr>`;
+    }
+    html += `</tbody></table></div>`;
+
+    // 3. Monthly averages
+    if (monthsPresent.length > 1) {
+      html += `<div class="pattern-block"><h5>Average by month</h5><table class="fb-table"><thead><tr><th></th>${monthsPresent.map((m) => `<th>${MONTH_NAMES[m]}</th>`).join("")}</tr></thead><tbody>`;
+      for (const pk of players) {
+        if (!data[pk].total.length) continue;
+        html += `<tr><td class="pl-${pk}">${PLAYER_NAMES[pk]}</td>`;
+        for (const m of monthsPresent) {
+          const arr = data[pk].byMonth[m] || [];
+          if (!arr.length) html += `<td class="muted">—</td>`;
+          else html += `<td>${(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1)}<span class="muted small"> (${arr.length})</span></td>`;
+        }
+        html += `</tr>`;
+      }
+      html += `</tbody></table></div>`;
+    }
+
+    // 4. Consistency (stddev)
+    html += `<div class="pattern-block"><h5>Consistency (18-hole score standard deviation — lower = steadier)</h5><table class="fb-table"><thead><tr><th></th><th>Rounds</th><th>Avg</th><th>Best</th><th>StdDev</th></tr></thead><tbody>`;
+    for (const pk of players) {
+      const arr = data[pk].total;
+      if (!arr.length) continue;
+      const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+      const std = Math.sqrt(arr.reduce((s, v) => s + (v - avg) ** 2, 0) / arr.length);
+      html += `<tr><td class="pl-${pk}">${PLAYER_NAMES[pk]}</td><td>${arr.length}</td><td>${avg.toFixed(1)}</td><td>${Math.min(...arr)}</td><td>${std.toFixed(1)}</td></tr>`;
+    }
+    html += `</tbody></table></div>`;
+
+    html += `</div>`;
+    wrap.innerHTML = html;
+  }
+
+  // Panel: Milestones
+  function drawMilestonesPanel(filters) {
+    const wrap = document.querySelector("#stats-milestones .stats-content");
+    if (!wrap) return;
+    const players = PLAYER_ORDER.filter((k) => filters.visible[k] !== false);
+
+    const stats = {};
+    for (const pk of players) {
+      stats[pk] = {
+        rounds: 0,
+        points: 0,
+        ties: 0,
+        sweeps: 0,
+        eagles: 0,
+        best18: null,   // { score, date, course }
+        best9: null,    // { score, date, course, which }
+      };
+    }
+
+    forEachFilteredEvent(filters, (ev) => {
+      // For sweep detection we need points against every other visible player
+      for (const pk of players) {
+        const p = ev.players[pk];
+        if (!p) continue;
+        const scored = (p.front9 != null || p.back9 != null);
+        if (!scored) continue;
+        const s = stats[pk];
+        s.rounds++;
+        if (p.eagle) s.eagles++;
+        const t = full18For(p);
+        if (t != null && (s.best18 == null || t < s.best18.score)) {
+          s.best18 = { score: t, date: ev.date, course: ev.course };
+        }
+        if (p.front9 != null && (s.best9 == null || p.front9 < s.best9.score)) {
+          s.best9 = { score: p.front9, date: ev.date, course: ev.course, which: "F9" };
+        }
+        if (p.back9 != null && (s.best9 == null || p.back9 < s.best9.score)) {
+          s.best9 = { score: p.back9, date: ev.date, course: ev.course, which: "B9" };
+        }
+        // Sum points scored
+        const pi = p.pointsImported || {};
+        for (const v of Object.values(pi)) s.points += (v || 0);
+        // Ties in a matchup
+        for (const opp of players) {
+          if (opp === pk) continue;
+          const opper = ev.players[opp];
+          if (!opper) continue;
+          const my = (pi["vs" + capitalize(opp)]) || 0;
+          const theirs = ((opper.pointsImported || {})["vs" + capitalize(pk)]) || 0;
+          if (my === theirs && my === 0) {
+            // Only count as a "tie" if both actually played this event
+            const bothPlayed = (p.front9 != null || p.back9 != null) && (opper.front9 != null || opper.back9 != null);
+            if (bothPlayed) s.ties += 0.5;   // will count each pair once via +0.5 * 2
+          }
+        }
+        // Sweep: winning against every visible opponent in this event
+        if (players.length >= 3) {
+          const opps = players.filter((k) => k !== pk);
+          const allBeat = opps.every((opp) => {
+            const opper = ev.players[opp];
+            if (!opper) return false;
+            const my = (pi["vs" + capitalize(opp)]) || 0;
+            const theirs = ((opper.pointsImported || {})["vs" + capitalize(pk)]) || 0;
+            return my > theirs;
+          });
+          if (allBeat && opps.length >= 2) s.sweeps++;
+        }
+      }
+    });
+
+    // Ties were counted as +0.5 per pair-per-event but each pair emits it twice — normalize
+    // (Not quite right — actually I counted 0.5 for each player's perspective. Total ties per event = sum of 0.5 for both sides = 1. So dividing by 2 per player... let me just make ties be integer count of tied matchups.)
+    // Reset ties with a cleaner calc:
+    for (const pk of players) stats[pk].ties = 0;
+    forEachFilteredEvent(filters, (ev) => {
+      for (const pk of players) {
+        const p = ev.players[pk];
+        if (!p || (p.front9 == null && p.back9 == null)) continue;
+        for (const opp of players) {
+          if (opp === pk) continue;
+          const opper = ev.players[opp];
+          if (!opper || (opper.front9 == null && opper.back9 == null)) continue;
+          const my = ((p.pointsImported || {})["vs" + capitalize(opp)]) || 0;
+          const theirs = ((opper.pointsImported || {})["vs" + capitalize(pk)]) || 0;
+          if (my === theirs) stats[pk].ties++;
+        }
+      }
+    });
+
+    const anyRounds = players.some((pk) => stats[pk].rounds > 0);
+    if (!anyRounds) { wrap.innerHTML = `<p class="muted small">No data in this range.</p>`; return; }
+
+    wrap.innerHTML = `<div class="milestone-grid">${players.map((pk) => {
+      const s = stats[pk];
+      if (!s.rounds) return "";
+      return `
+        <div class="milestone-card player-card ${pk}">
+          <div class="name"><span class="dot"></span>${PLAYER_NAMES[pk]}</div>
+          <dl class="milestones">
+            <dt>Best 18</dt><dd>${s.best18 ? `<b>${s.best18.score}</b> <span class="muted small">${formatShortDate(s.best18.date)} · ${escapeHtml(s.best18.course || "")}</span>` : "—"}</dd>
+            <dt>Best 9</dt><dd>${s.best9 ? `<b>${s.best9.score}</b> <span class="muted small">${s.best9.which} · ${formatShortDate(s.best9.date)} · ${escapeHtml(s.best9.course || "")}</span>` : "—"}</dd>
+            <dt>Rounds</dt><dd>${s.rounds}</dd>
+            <dt>Points scored</dt><dd>${formatPts(s.points)}</dd>
+            <dt>Ties (matchup)</dt><dd>${s.ties}</dd>
+            ${players.length >= 3 ? `<dt>Sweep rounds</dt><dd>${s.sweeps}</dd>` : ""}
+            <dt>Eagles</dt><dd>${s.eagles}</dd>
+          </dl>
+        </div>
+      `;
+    }).join("")}</div>`;
   }
 
   // OLS over date-as-numeric
