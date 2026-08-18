@@ -116,12 +116,13 @@ input, select, textarea, button {
   gap: 12px;
   align-items: start;
 }
-.individual-card {
+.player-card.individual-card {
   display: grid;
   grid-template-columns: max-content 1fr;
   column-gap: 16px;
   row-gap: 0;
   align-items: baseline;
+  flex-direction: initial;
   padding: 14px 16px 16px;
   border-radius: 12px;
   border: 1px solid var(--line);
