@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-08-16T00:00:38.022Z",
+  "lastUpdated": "2026-08-18T15:07:27.826Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10855,6 +10855,52 @@
               "magicEraser": null,
               "pointsImported": {
                 "vsEric": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-08-17-riverdale-dunes-5xav",
+          "date": "2026-08-17",
+          "course": "Riverdale Dunes",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Eric was unstoppable on the front nine, but then came back to earth to create a compelling 3-way duel on the back.",
+          "players": {
+            "eric": {
+              "front9": 40,
+              "back9": 48,
+              "total18": 88,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 3,
+                "vsJim": 2
+              }
+            },
+            "pete": {
+              "front9": 51,
+              "back9": 46,
+              "total18": 97,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 1,
+                "vsJim": 0
+              }
+            },
+            "jim": {
+              "front9": 46,
+              "back9": 47,
+              "total18": 93,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 1,
+                "vsPete": 4
               }
             }
           }
