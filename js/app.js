@@ -11,6 +11,8 @@
   const PLAYER_COLORS = { eric: "#185fa5", pete: "#a32d2d", jim: "#3b6d11" };
   const PLAYER_ORDER = ["eric", "pete", "jim"];
   const TODAY = new Date().toISOString().slice(0, 10);
+  // Short/non-standard courses excluded from Best 18 / Best 9 personal records.
+  const SHORT_COURSES = new Set(["Stony Creek"]);
 
   const state = {
     data: null,
@@ -383,10 +385,9 @@
     grid.innerHTML = sorted.map((pk) => {
       const isLead = crowned.has(pk);
       const b = battle[pk];
-      const record = season.players.length > 2
-        ? `${b.wins} – ${b.losses}${b.ties ? ` – ${b.ties}` : ""}`
-        : `${b.wins} – ${b.losses}${b.ties ? ` – ${b.ties}` : ""}`;
+      const record = `${b.wins}-${b.losses}${b.ties ? `-${b.ties}` : ""}`;
       const statusLabel = labels[pk] || "";
+      const titleLine = statusLabel ? `${statusLabel} ${record}` : record;
 
       // Head-to-head split bars for each opponent
       const bars = season.players
@@ -415,8 +416,7 @@
       return `
         <div class="player-card ${pk} ${isLead ? "lead" : ""}">
           <div class="name"><span class="dot"></span>${PLAYER_NAMES[pk]}</div>
-          ${statusLabel ? `<div class="status-label">${statusLabel}</div>` : ""}
-          <div class="record">${record}</div>
+          <div class="record">${titleLine}</div>
           <div class="h2h-list">${bars}</div>
           <div class="total-small">${formatPts(combined[pk] || 0)} pts total</div>
         </div>
@@ -457,7 +457,7 @@
         if (battle[a].wins === battle[b].wins && battle[a].diffSum === battle[b].diffSum) {
           labels[a] = labels[b] = "Co-Loser";
         } else {
-          labels[a] = "Middle Child";
+          labels[a] = "Meh";
           labels[b] = "Loser";
         }
       }
@@ -488,7 +488,7 @@
     }
     if (topTier.length === 1) labels[topTier[0]] = "Winning";
     else for (const pk of topTier) labels[pk] = "Co-Winning";
-    for (const tier of middleTiers) for (const pk of tier) labels[pk] = "In the Middle";
+    for (const tier of middleTiers) for (const pk of tier) labels[pk] = "Meh";
     if (bottomTier.length === 1) labels[bottomTier[0]] = "Losing";
     else if (bottomTier.length > 1) for (const pk of bottomTier) labels[pk] = "Co-Losing";
     return labels;
@@ -886,6 +886,7 @@
     const data = {};
     for (const pk of players) data[pk] = { total18: [], nine: [], front: [], back: [], best18: null, best9: null };
     forEachFilteredEvent(filters, (ev) => {
+      const isShort = SHORT_COURSES.has((ev.course || "").trim());
       for (const pk of players) {
         const p = ev.players[pk];
         if (!p) continue;
@@ -894,7 +895,7 @@
           const t = full18For(p);
           if (t != null) {
             data[pk].total18.push(t);
-            if (data[pk].best18 == null || t < data[pk].best18.score) {
+            if (!isShort && (data[pk].best18 == null || t < data[pk].best18.score)) {
               data[pk].best18 = { score: t, date: ev.date, course: ev.course };
             }
           }
@@ -903,7 +904,7 @@
         } else if (hasF || hasB) {
           const s = hasF ? p.front9 : p.back9;
           data[pk].nine.push(s);
-          if (data[pk].best9 == null || s < data[pk].best9.score) {
+          if (!isShort && (data[pk].best9 == null || s < data[pk].best9.score)) {
             data[pk].best9 = { score: s, date: ev.date, course: ev.course, which: hasF ? "F9" : "B9" };
           }
           if (hasF) data[pk].front.push(p.front9);
@@ -951,7 +952,10 @@
       }).join("");
     }
 
-    wrap.innerHTML = `<div class="individual-grid">${players.map((pk) => {
+    // Hide players with no rounds at all in the filtered range
+    const withData = players.filter((pk) => data[pk].total18.length > 0 || data[pk].nine.length > 0);
+
+    wrap.innerHTML = `<div class="individual-grid">${withData.map((pk) => {
       const s = data[pk];
       const avg18 = mean(s.total18);
       const avg9 = mean(s.nine);
@@ -966,6 +970,13 @@
       const best18Txt = s.best18 ? `<b>${s.best18.score}</b> <span class="muted small">${escapeHtml(s.best18.course || "")}</span>` : "—";
       const best9Txt  = s.best9  ? `<b>${s.best9.score}</b> <span class="muted small">${s.best9.which} · ${escapeHtml(s.best9.course || "")}</span>` : "—";
       const streakTxt = `<b>${streak}</b> <span class="muted small">${streak === 1 ? "round" : "rounds"}</span>`;
+
+      const dist18Header = std18 != null
+        ? `18-hole distribution <span class="muted small">${fmt(std18)} stddev</span>`
+        : `18-hole distribution`;
+      const dist9Header = std9 != null
+        ? `9-hole distribution <span class="muted small">${fmt(std9)} stddev</span>`
+        : `9-hole distribution`;
 
       return `
         <div class="individual-card player-card ${pk}">
@@ -982,24 +993,20 @@
           <div class="ind-cell"><span class="ind-lbl">Longest Win Streak</span><span class="ind-val">${streakTxt}</span></div>
           <div class="ind-cell ind-sep-cell"></div>
 
+          <div class="ind-cell"><span class="ind-lbl">Front 9 avg</span><span class="ind-val">${front != null ? `<b>${fmt(front)}</b> <span class="muted small">${s.front.length}</span>` : "—"}</span></div>
+          <div class="ind-cell"><span class="ind-lbl">Back 9 avg</span><span class="ind-val">${back != null ? `<b>${fmt(back)}</b> <span class="muted small">${s.back.length}</span>` : "—"}</span></div>
+          <div class="ind-cell ind-sep-cell"></div>
+
           <div class="ind-cell ind-dist-cell">
-            <span class="ind-lbl">18-hole distribution</span>
+            <span class="ind-lbl">${dist18Header}</span>
             <div class="dist-mini">${distHtml(bins18, s.total18, pk, distMax18)}</div>
           </div>
           <div class="ind-cell ind-sep-cell"></div>
 
           <div class="ind-cell ind-dist-cell">
-            <span class="ind-lbl">9-hole distribution <span class="muted small">(9-only)</span></span>
+            <span class="ind-lbl">${dist9Header}</span>
             <div class="dist-mini">${distHtml(bins9, s.nine, pk, distMax9)}</div>
           </div>
-          <div class="ind-cell ind-sep-cell"></div>
-
-          <div class="ind-cell"><span class="ind-lbl">Front 9 avg</span><span class="ind-val">${front != null ? `<b>${fmt(front)}</b> <span class="muted small">${s.front.length}</span>` : "—"}</span></div>
-          <div class="ind-cell"><span class="ind-lbl">Back 9 avg</span><span class="ind-val">${back != null ? `<b>${fmt(back)}</b> <span class="muted small">${s.back.length}</span>` : "—"}</span></div>
-          <div class="ind-cell ind-sep-cell"></div>
-
-          <div class="ind-cell"><span class="ind-lbl">Consistency 18 <span class="muted small">(stddev)</span></span><span class="ind-val">${std18 != null ? `<b>${fmt(std18)}</b>` : "—"}</span></div>
-          <div class="ind-cell"><span class="ind-lbl">Consistency 9 <span class="muted small">(stddev)</span></span><span class="ind-val">${std9 != null ? `<b>${fmt(std9)}</b>` : "—"}</span></div>
         </div>
       `;
     }).join("")}</div>`;
