@@ -970,43 +970,45 @@
       const best18Txt = s.best18 ? `<b>${s.best18.score}</b> <span class="muted small">${escapeHtml(s.best18.course || "")}</span>` : "—";
       const best9Txt  = s.best9  ? `<b>${s.best9.score}</b> <span class="muted small">${s.best9.which} · ${escapeHtml(s.best9.course || "")}</span>` : "—";
       const streakTxt = `<b>${streak}</b> <span class="muted small">${streak === 1 ? "round" : "rounds"}</span>`;
-
-      const dist18Header = std18 != null
-        ? `18-hole distribution <span class="muted small">${fmt(std18)} stddev</span>`
-        : `18-hole distribution`;
-      const dist9Header = std9 != null
-        ? `9-hole distribution <span class="muted small">${fmt(std9)} stddev</span>`
-        : `9-hole distribution`;
+      const frontTxt = front != null ? `<b>${fmt(front)}</b>` : "—";
+      let backTxt;
+      if (back == null) backTxt = "—";
+      else if (front == null) backTxt = `<b>${fmt(back)}</b>`;
+      else {
+        const diff = back - front;
+        const sign = diff > 0 ? "+" : "";
+        const diffTxt = diff === 0 ? "even" : `${sign}${fmt(diff)} diff`;
+        backTxt = `<b>${fmt(back)}</b> <span class="muted small">${diffTxt}</span>`;
+      }
+      const std18Txt = std18 != null ? `<b>${fmt(std18)}</b> <span class="muted small">stddev</span>` : "—";
+      const std9Txt = std9 != null ? `<b>${fmt(std9)}</b> <span class="muted small">stddev</span>` : "—";
 
       return `
         <div class="individual-card player-card ${pk}">
-          <div class="ind-cell name-cell"><div class="name"><span class="dot"></span>${PLAYER_NAMES[pk]}</div></div>
+          <div class="ind-name">${PLAYER_NAMES[pk]}</div>
 
-          <div class="ind-cell"><span class="ind-lbl">Average 18</span><span class="ind-val">${avg18Txt}</span></div>
-          <div class="ind-cell"><span class="ind-lbl">Best 18</span><span class="ind-val">${best18Txt}</span></div>
-          <div class="ind-cell ind-sep-cell"></div>
+          <div class="ind-lbl">Average 18</div><div class="ind-val">${avg18Txt}</div>
+          <div class="ind-lbl">Best 18</div><div class="ind-val">${best18Txt}</div>
+          <div class="ind-sep"></div>
 
-          <div class="ind-cell"><span class="ind-lbl">Average 9</span><span class="ind-val">${avg9Txt}</span></div>
-          <div class="ind-cell"><span class="ind-lbl">Best 9</span><span class="ind-val">${best9Txt}</span></div>
-          <div class="ind-cell ind-sep-cell"></div>
+          <div class="ind-lbl">Average 9</div><div class="ind-val">${avg9Txt}</div>
+          <div class="ind-lbl">Best 9</div><div class="ind-val">${best9Txt}</div>
+          <div class="ind-sep"></div>
 
-          <div class="ind-cell"><span class="ind-lbl">Longest Win Streak</span><span class="ind-val">${streakTxt}</span></div>
-          <div class="ind-cell ind-sep-cell"></div>
+          <div class="ind-lbl">Front 9 avg</div><div class="ind-val">${frontTxt}</div>
+          <div class="ind-lbl">Back 9 avg</div><div class="ind-val">${backTxt}</div>
+          <div class="ind-sep"></div>
 
-          <div class="ind-cell"><span class="ind-lbl">Front 9 avg</span><span class="ind-val">${front != null ? `<b>${fmt(front)}</b> <span class="muted small">${s.front.length}</span>` : "—"}</span></div>
-          <div class="ind-cell"><span class="ind-lbl">Back 9 avg</span><span class="ind-val">${back != null ? `<b>${fmt(back)}</b> <span class="muted small">${s.back.length}</span>` : "—"}</span></div>
-          <div class="ind-cell ind-sep-cell"></div>
+          <div class="ind-lbl">Longest Win Streak</div><div class="ind-val">${streakTxt}</div>
+          <div class="ind-sep"></div>
 
-          <div class="ind-cell ind-dist-cell">
-            <span class="ind-lbl">${dist18Header}</span>
-            <div class="dist-mini">${distHtml(bins18, s.total18, pk, distMax18)}</div>
-          </div>
-          <div class="ind-cell ind-sep-cell"></div>
+          <div class="ind-lbl">18-hole distribution</div><div class="ind-val">${std18Txt}</div>
+          <div class="ind-chart">${distHtml(bins18, s.total18, pk, distMax18)}</div>
 
-          <div class="ind-cell ind-dist-cell">
-            <span class="ind-lbl">${dist9Header}</span>
-            <div class="dist-mini">${distHtml(bins9, s.nine, pk, distMax9)}</div>
-          </div>
+          <div class="ind-gap"></div>
+
+          <div class="ind-lbl">9-hole distribution</div><div class="ind-val">${std9Txt}</div>
+          <div class="ind-chart">${distHtml(bins9, s.nine, pk, distMax9)}</div>
         </div>
       `;
     }).join("")}</div>`;
@@ -1047,13 +1049,43 @@
     mountTemplate("tpl-all-years");
 
     const summaries = computeAllYearsSummaries();
-    // Total (title tally) — render FIRST above the table
-    const titleStats = aggregateTitles(summaries);
+    // Title tally per player + tie years — render as 4 cards above the table
+    const perPlayerYears = { eric: [], pete: [], jim: [] };
+    const tieYears = [];
+    for (const s of summaries) {
+      const holders = s.titleHolders || [];
+      if (!holders.length) continue;
+      for (const k of holders) {
+        if (perPlayerYears[k]) perPlayerYears[k].push(s.year);
+      }
+      if (holders.length > 1) tieYears.push(s.year);
+    }
+    const fmtYears = (arr) => arr.length ? arr.join(", ") : "—";
     document.getElementById("title-card").innerHTML = `
-      <div class="title-stat"><span class="label">Eric titles</span><span class="value" style="color:${PLAYER_COLORS.eric}">${titleStats.eric}</span></div>
-      <div class="title-stat"><span class="label">Pete titles</span><span class="value" style="color:${PLAYER_COLORS.pete}">${titleStats.pete}</span></div>
-      <div class="title-stat"><span class="label">Jim titles</span><span class="value" style="color:${PLAYER_COLORS.jim}">${titleStats.jim}</span></div>
-      <div class="title-stat"><span class="label">Ties</span><span class="value">${titleStats.tie}</span></div>
+      <div class="lt-card player-card eric">
+        <div class="lt-name">Eric</div>
+        <div class="lt-count">${perPlayerYears.eric.length}</div>
+        <div class="lt-label muted">${perPlayerYears.eric.length === 1 ? "title" : "titles"}</div>
+        <div class="lt-years muted small">${fmtYears(perPlayerYears.eric)}</div>
+      </div>
+      <div class="lt-card player-card pete">
+        <div class="lt-name">Pete</div>
+        <div class="lt-count">${perPlayerYears.pete.length}</div>
+        <div class="lt-label muted">${perPlayerYears.pete.length === 1 ? "title" : "titles"}</div>
+        <div class="lt-years muted small">${fmtYears(perPlayerYears.pete)}</div>
+      </div>
+      <div class="lt-card player-card jim">
+        <div class="lt-name">Jim</div>
+        <div class="lt-count">${perPlayerYears.jim.length}</div>
+        <div class="lt-label muted">${perPlayerYears.jim.length === 1 ? "title" : "titles"}</div>
+        <div class="lt-years muted small">${fmtYears(perPlayerYears.jim)}</div>
+      </div>
+      <div class="lt-card lt-tie">
+        <div class="lt-name">Ties</div>
+        <div class="lt-count">${tieYears.length}</div>
+        <div class="lt-label muted">${tieYears.length === 1 ? "year" : "years"}</div>
+        <div class="lt-years muted small">${fmtYears(tieYears)}</div>
+      </div>
     `;
 
     // Rows sorted latest → oldest

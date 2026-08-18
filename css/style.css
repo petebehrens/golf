@@ -106,85 +106,93 @@ input, select, textarea, button {
 .fb-table th { font-size: 11px; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; letter-spacing: 0.04em; }
 
 /* Individual statistics cards */
-/* Individual statistics — per-player columns with rows aligned via CSS subgrid.
-   Row layout (15 rows total):
-     1  name
-     2  Avg 18       3  Best 18       4  sep
-     5  Avg 9        6  Best 9        7  sep
-     8  Streak                        9  sep
-     10 Front 9 avg  11 Back 9 avg   12 sep
-     13 18-dist                       14 sep
-     15 9-dist
-   Distributions live at the bottom so their variable-height bars can't push
-   other stats out of horizontal alignment. */
+/* Individual statistics — per-player columns.
+   Rows are aligned across cards via CSS subgrid.
+   Columns (label + value) are aligned WITHIN each card via card-level grid.
+   Row layout (17 rows):
+     1  name (spans both columns)
+     2  Avg 18 label     | Avg 18 value
+     3  Best 18 label    | Best 18 value
+     4  sep (spans)
+     5  Avg 9 label      | Avg 9 value
+     6  Best 9 label     | Best 9 value
+     7  sep (spans)
+     8  Front 9 avg      | value
+     9  Back 9 avg       | value +/-diff
+     10 sep (spans)
+     11 Streak           | value
+     12 sep (spans)
+     13 18-dist label    | X.Y stddev
+     14 18-dist chart (spans)
+     15 gap (spans, taller than sep)
+     16 9-dist label     | X.Y stddev
+     17 9-dist chart (spans) */
 .individual-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  grid-template-rows: repeat(15, auto);
+  grid-template-rows: repeat(17, auto);
   gap: 12px;
 }
 .individual-card {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: max-content 1fr;
   grid-template-rows: subgrid;
-  grid-row: span 15;
+  grid-row: span 17;
   padding: 14px 16px 16px;
   border-radius: 12px;
   border: 1px solid var(--line);
-}
-.ind-cell {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0 12px;
-  font-size: 13px;
+  column-gap: 16px;
+  row-gap: 0;
   align-items: baseline;
-  min-height: 22px;
 }
-.ind-cell.name-cell {
-  grid-template-columns: 1fr;
-  margin-bottom: 6px;
-  min-height: auto;
-}
-.ind-cell.name-cell .name {
-  font-size: 18px;
+.ind-name {
+  grid-column: 1 / -1;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.01em;
+  margin-bottom: 8px;
 }
-.ind-cell.name-cell .name .dot { width: 12px; height: 12px; }
-.ind-lbl { color: var(--ink-muted); font-weight: 500; text-align: left; }
+.ind-lbl {
+  color: var(--ink-muted);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 2px 0;
+}
 .ind-val {
   font-variant-numeric: tabular-nums;
+  font-size: 13px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 2px 0;
   text-align: left;
 }
 .ind-val b { font-weight: 700; font-size: 15px; }
-.ind-sep-cell { border-bottom: 1px solid var(--line-soft); margin: 4px 0; min-height: 0; }
-.ind-dist-cell {
-  grid-template-columns: 1fr;
-  gap: 4px;
-  align-items: end;
-  /* Fixed vertical footprint so distribution bars align at the bottom across cards */
-  min-height: 62px;
+.ind-sep {
+  grid-column: 1 / -1;
+  border-bottom: 1px solid var(--line-soft);
+  margin: 6px 0;
 }
-.ind-dist-cell .ind-lbl {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+.ind-gap {
+  grid-column: 1 / -1;
+  height: 12px;   /* extra breathing room between 18-dist and 9-dist */
 }
-.dist-mini {
+.ind-chart {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 3px;
   align-items: end;
-  height: 40px;   /* fixed so bars grow up from the same baseline across all cards */
+  height: 40px;
+  margin-top: 4px;
 }
-.dist-mini .dist-bin { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 1px; }
-.dist-mini .dist-bar { width: 100%; max-width: 22px; border-radius: 2px 2px 0 0; }
-.dist-mini .dist-bar.bar-eric { background: var(--eric); }
-.dist-mini .dist-bar.bar-pete { background: var(--pete); }
-.dist-mini .dist-bar.bar-jim  { background: var(--jim); }
-.dist-mini .dist-count { font-size: 10px; font-variant-numeric: tabular-nums; font-weight: 600; }
-.dist-mini .dist-blabel { font-size: 9px; }
+.ind-chart .dist-bin { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 1px; height: 100%; }
+.ind-chart .dist-bar { width: 100%; max-width: 22px; border-radius: 2px 2px 0 0; }
+.ind-chart .dist-bar.bar-eric { background: var(--eric); }
+.ind-chart .dist-bar.bar-pete { background: var(--pete); }
+.ind-chart .dist-bar.bar-jim  { background: var(--jim); }
+.ind-chart .dist-count { font-size: 10px; font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1; }
+.ind-chart .dist-blabel { font-size: 9px; line-height: 1; }
 
-/* Subgrid fallback: browsers without subgrid (older Safari) still get side-by-side cards */
+/* Subgrid fallback: browsers without subgrid still get side-by-side cards */
 @supports not (grid-template-rows: subgrid) {
   .individual-card { grid-template-rows: auto; grid-row: auto; }
 }
@@ -415,10 +423,39 @@ main {
 .all-years-table .winner-jim  { color: var(--jim); font-weight: 600; }
 .all-years-table .winner-tie  { color: var(--ink-muted); }
 
-.title-card { display: flex; gap: 24px; flex-wrap: wrap; }
-.title-card .title-stat { display: flex; flex-direction: column; }
-.title-card .title-stat .label { font-size: 12px; color: var(--ink-muted); }
-.title-card .title-stat .value { font-size: 28px; font-weight: 700; }
+.title-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+.lt-card {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lt-card .lt-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.lt-card .lt-count {
+  font-size: 32px; font-weight: 700; letter-spacing: -0.02em;
+  line-height: 1.05; font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+.lt-card .lt-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.lt-card .lt-years { font-size: 11px; line-height: 1.4; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.lt-card.eric { background: var(--eric-soft); color: var(--eric-ink); border-color: #c7d2fe; }
+.lt-card.pete { background: var(--pete-soft); color: var(--pete-ink); border-color: #f7c1c1; }
+.lt-card.jim  { background: var(--jim-soft);  color: var(--jim-ink);  border-color: #c0dd97; }
+.lt-card.lt-tie { background: var(--line-soft); color: var(--ink-muted); border-color: var(--line); }
+.lt-card.eric .lt-name { color: var(--eric); }
+.lt-card.pete .lt-name { color: var(--pete); }
+.lt-card.jim  .lt-name { color: var(--jim); }
+.lt-card.lt-tie .lt-name { color: var(--ink); }
 
 /* --- MISC --- */
 h2 { margin: 0 0 8px; font-size: 22px; letter-spacing: -0.01em; }
