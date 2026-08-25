@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-08-18T15:07:27.826Z",
+  "lastUpdated": "2026-08-25T16:05:53.968Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10901,6 +10901,38 @@
               "pointsImported": {
                 "vsEric": 1,
                 "vsPete": 4
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-08-24-fossil-trace-bhs8",
+          "date": "2026-08-24",
+          "course": "Fossil Trace",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Jim's Youtube lessons are beginning to pay off and secure the win in this tough fought battle.",
+          "players": {
+            "eric": {
+              "front9": 45,
+              "back9": 50,
+              "total18": 95,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsJim": 1
+              }
+            },
+            "jim": {
+              "front9": 48,
+              "back9": 50,
+              "total18": 98,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 2
               }
             }
           }
