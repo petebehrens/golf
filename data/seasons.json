@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-08-25T16:05:53.968Z",
+  "lastUpdated": "2026-09-05T20:38:24.970Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10933,6 +10933,52 @@
               "magicEraser": null,
               "pointsImported": {
                 "vsEric": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-09-04-todd-creek-jg4m",
+          "date": "2026-09-04",
+          "course": "Todd Creek",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Jim was unstoppable to the green and on the green - with a legit eagle putt (that unfortunately missed right).",
+          "players": {
+            "eric": {
+              "front9": 46,
+              "back9": 48,
+              "total18": 94,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 2,
+                "vsJim": 0
+              }
+            },
+            "pete": {
+              "front9": 49,
+              "back9": 47,
+              "total18": 96,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 1,
+                "vsJim": 0
+              }
+            },
+            "jim": {
+              "front9": 46,
+              "back9": 47,
+              "total18": 93,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 3,
+                "vsPete": 4
               }
             }
           }
