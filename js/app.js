@@ -244,16 +244,17 @@
       const names = holders.map((k) => PLAYER_NAMES[k]).join(" and ");
       return ` · Season ended in a tie · <b>${names}</b> share the title`;
     } else {
-      // Current season: who's leading by battle position (wins). Tiebreak by diffSum.
+      // Current season: who's leading by W/T/L score. diffSum only breaks ordering,
+      // never the rating - an equal score is a shared lead.
       const battle = computeBattlePositions(season, result);
       const rankedTop = season.players.slice().sort((a, b) => {
-        if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+        if (battle[b].score !== battle[a].score) return battle[b].score - battle[a].score;
         return battle[b].diffSum - battle[a].diffSum;
       });
       const leader = rankedTop[0];
       if (!leader || battle[leader].wins === 0) return ` · Season just starting`;
       // Are there co-leaders at the top?
-      const topGroup = season.players.filter((k) => battle[k].wins === battle[leader].wins && battle[k].diffSum === battle[leader].diffSum);
+      const topGroup = season.players.filter((k) => battle[k].score === battle[leader].score);
       if (topGroup.length === 1) return ` · <b>${PLAYER_NAMES[leader]}</b> currently leads`;
       const names = topGroup.map((k) => PLAYER_NAMES[k]).join(" and ");
       return ` · <b>${names}</b> currently tied for the lead`;
@@ -276,7 +277,9 @@
         else ties++;
         diffSum += d;
       }
-      battle[pk] = { wins, losses, ties, diffSum };
+      // Typical W/T/L scoring - a win is worth 1, a tie half, a loss nothing.
+      // So 1-0-1 (a win and a tie) outranks 1-1-0 (a win and a loss).
+      battle[pk] = { wins, losses, ties, diffSum, score: wins + ties * 0.5 };
     }
     return battle;
   }
@@ -359,9 +362,10 @@
 
     const battle = computeBattlePositions(season, result);
 
-    // Sort by battle record: wins desc, then differential sum desc, then combined pts.
+    // Sort by W/T/L score desc, then differential sum desc, then combined pts.
+    // (diffSum only orders the cards; players on the same score share a rating.)
     const sorted = season.players.slice().sort((a, b) => {
-      if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+      if (battle[b].score !== battle[a].score) return battle[b].score - battle[a].score;
       if (battle[b].diffSum !== battle[a].diffSum) return battle[b].diffSum - battle[a].diffSum;
       return (combined[b] || 0) - (combined[a] || 0);
     });
@@ -372,20 +376,23 @@
     if (past) {
       (result.titleHolders || []).forEach((k) => crowned.add(k));
     } else if (season.events.length) {
-      const topWins = Math.max(...season.players.map((k) => battle[k].wins));
-      const topByWins = season.players.filter((k) => battle[k].wins === topWins);
-      if (topByWins.length === 1 && topWins > 0) crowned.add(topByWins[0]);
-      else if (topByWins.length > 1 && topWins > 0) topByWins.forEach((k) => crowned.add(k));
+      const anyWin = season.players.some((k) => battle[k].wins > 0);
+      const topScore = Math.max(...season.players.map((k) => battle[k].score));
+      if (anyWin) season.players.filter((k) => battle[k].score === topScore).forEach((k) => crowned.add(k));
     }
 
     // Rank labels — each player's status (Winner/Middle/Loser or in-progress equivalents)
     // Past 3-player seasons defer to titleHolders so 2022's E-vs-P tie shows Co-Winner.
     const labels = rankLabels(season, battle, past, result.titleHolders);
 
+    // If anyone has a tie, show W-L-T for everyone so the records compare cleanly
+    // (a tie is what separates 1-0-1 from 1-1-0, so it has to be visible on both cards).
+    const showTies = season.players.some((k) => battle[k].ties > 0);
+
     grid.innerHTML = sorted.map((pk) => {
       const isLead = crowned.has(pk);
       const b = battle[pk];
-      const record = `${b.wins}-${b.losses}${b.ties ? `-${b.ties}` : ""}`;
+      const record = `${b.wins}-${b.losses}${showTies ? `-${b.ties}` : ""}`;
       const statusLabel = labels[pk] || "";
       const titleLine = statusLabel ? `${statusLabel} ${record}` : record;
 
@@ -445,7 +452,7 @@
       // Remaining players ranked by wins/diffSum for middle/loser distinction
       const remaining = players.filter((k) => !holders.includes(k));
       remaining.sort((a, b) => {
-        if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+        if (battle[b].score !== battle[a].score) return battle[b].score - battle[a].score;
         return battle[b].diffSum - battle[a].diffSum;
       });
       if (remaining.length === 1) {
@@ -454,7 +461,7 @@
         // Sole holder + two non-holders → the better non-holder is Middle Child, worse is Loser
         // If both non-holders are tied, both are Co-Loser
         const [a, b] = remaining;
-        if (battle[a].wins === battle[b].wins && battle[a].diffSum === battle[b].diffSum) {
+        if (battle[a].score === battle[b].score) {
           labels[a] = labels[b] = "Co-Loser";
         } else {
           labels[a] = "Meh";
@@ -464,17 +471,16 @@
       return labels;
     }
 
-    // In-progress: group by (wins, diffSum) tiers
+    // In-progress: group into tiers by W/T/L score alone. Same score = same rating,
+    // even if the point differential leans one way.
     const sorted = players.slice().sort((a, b) => {
-      if (battle[b].wins !== battle[a].wins) return battle[b].wins - battle[a].wins;
+      if (battle[b].score !== battle[a].score) return battle[b].score - battle[a].score;
       return battle[b].diffSum - battle[a].diffSum;
     });
     const tiers = [];
     for (const pk of sorted) {
       const tier = tiers[tiers.length - 1];
-      const same = tier && tier.length &&
-        battle[pk].wins === battle[tier[0]].wins &&
-        battle[pk].diffSum === battle[tier[0]].diffSum;
+      const same = tier && tier.length && battle[pk].score === battle[tier[0]].score;
       if (same) tier.push(pk);
       else tiers.push([pk]);
     }
