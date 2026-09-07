@@ -506,17 +506,23 @@
       wrap.innerHTML = `<p class="muted">No rounds yet. Tap <b>+ Add Round</b> to start the season.</p>`;
       return;
     }
-    const events = season.events.slice().sort((a, b) => b.date.localeCompare(a.date));
+    // Number the rounds chronologically (1 = first of the year), then display
+    // newest-first. Sorting the display list by that number rather than by date
+    // keeps same-day rounds in a stable, strictly descending order.
+    const roundNo = new Map();
+    season.events.slice().sort((a, b) => a.date.localeCompare(b.date))
+      .forEach((ev, i) => roundNo.set(ev, i + 1));
+    const events = season.events.slice().sort((a, b) => roundNo.get(b) - roundNo.get(a));
 
     if (season.players.length >= 3) {
-      drawEventsTable3Player(season, events, wrap);
+      drawEventsTable3Player(season, events, wrap, roundNo);
     } else {
-      drawEventsTable2Player(season, events, wrap);
+      drawEventsTable2Player(season, events, wrap, roundNo);
     }
   }
 
   // 2-player: one row per event, scores stacked, pills side by side. No wrapping.
-  function drawEventsTable2Player(season, events, wrap) {
+  function drawEventsTable2Player(season, events, wrap, roundNo) {
     const admin = isAdmin();
     const rows = events.map((ev) => {
       const badges = badgesFor(ev);
@@ -530,6 +536,7 @@
       }).join(" ");
       return `
         <tr>
+          <td class="col-idx">${roundNo.get(ev)}</td>
           <td class="col-date">${formatShortDate(ev.date)}</td>
           <td class="col-course">
             ${escapeHtml(ev.course)} ${badges} ${editIcon}
@@ -544,6 +551,7 @@
       <table class="events-list two-player">
         <thead>
           <tr>
+            <th class="col-idx">#</th>
             <th class="col-date">Date</th>
             <th class="col-course">Course</th>
             <th class="col-scores">Scores</th>
@@ -557,7 +565,7 @@
 
   // 3-player: each event spans multiple rows (one per player who actually played).
   // Each row shows one player's score and per-opponent points (in opponent's column).
-  function drawEventsTable3Player(season, events, wrap) {
+  function drawEventsTable3Player(season, events, wrap, roundNo) {
     const admin = isAdmin();
     const rowsHtml = [];
     for (const ev of events) {
@@ -583,6 +591,7 @@
 
         rowsHtml.push(`
           <tr class="ev-row ev-${pk} ${first ? "ev-first" : ""}">
+            ${first ? `<td class="col-idx" rowspan="${playersInEv.length}">${roundNo.get(ev)}</td>` : ""}
             ${first ? `<td class="col-date" rowspan="${playersInEv.length}">${formatShortDate(ev.date)}</td>` : ""}
             ${first ? `<td class="col-course" rowspan="${playersInEv.length}">${courseBlock}</td>` : ""}
             <td class="col-scores">${scoreLineFor(ev, pk, /*inline=*/true)}</td>
@@ -597,6 +606,7 @@
       <table class="events-list three-player">
         <thead>
           <tr>
+            <th class="col-idx">#</th>
             <th class="col-date">Date</th>
             <th class="col-course">Course</th>
             <th class="col-scores">Score</th>
@@ -890,13 +900,14 @@
 
     // Per-player: gather 18-hole totals, 9-hole-only scores, front & back 9 lists.
     const data = {};
-    for (const pk of players) data[pk] = { total18: [], nine: [], front: [], back: [], best18: null, best9: null };
+    for (const pk of players) data[pk] = { rounds: 0, total18: [], nine: [], front: [], back: [], best18: null, best9: null };
     forEachFilteredEvent(filters, (ev) => {
       const isShort = SHORT_COURSES.has((ev.course || "").trim());
       for (const pk of players) {
         const p = ev.players[pk];
         if (!p) continue;
         const hasF = p.front9 != null, hasB = p.back9 != null;
+        if (hasF || hasB) data[pk].rounds++;
         if (hasF && hasB) {
           const t = full18For(p);
           if (t != null) {
@@ -970,6 +981,7 @@
       const front = mean(s.front);
       const back = mean(s.back);
       const streak = longestStreak[pk] || 0;
+      const roundsTxt = `<b>${s.rounds}</b>`;   // label already says "Rounds"
 
       const avg18Txt = s.total18.length ? `<b>${fmt(avg18)}</b> <span class="muted small">${s.total18.length} rounds</span>` : "—";
       const avg9Txt  = s.nine.length ? `<b>${fmt(avg9)}</b> <span class="muted small">${s.nine.length} rounds</span>` : "—";
@@ -992,6 +1004,9 @@
       return `
         <div class="individual-card player-card ${pk}">
           <div class="ind-name">${PLAYER_NAMES[pk]}</div>
+
+          <div class="ind-lbl">Rounds</div><div class="ind-val">${roundsTxt}</div>
+          <div class="ind-sep"></div>
 
           <div class="ind-lbl">Average 18</div><div class="ind-val">${avg18Txt}</div>
           <div class="ind-lbl">Best 18</div><div class="ind-val">${best18Txt}</div>
@@ -1103,6 +1118,7 @@
       return `
         <tr>
           <td>${s.year}</td>
+          <td class="ly-rounds">${s.rounds}</td>
           <td><span class="winner-${winnerKey}">${s.winnerLabel}</span></td>
           <td class="ly-cell pl-eric">${fmtPlayer(s.perPlayer.eric)}</td>
           <td class="ly-cell pl-pete">${fmtPlayer(s.perPlayer.pete)}</td>
@@ -1116,6 +1132,7 @@
         <thead>
           <tr>
             <th>Year</th>
+            <th class="ly-rounds">Rounds</th>
             <th>Winner</th>
             <th class="pl-eric">Eric</th>
             <th class="pl-pete">Pete</th>
@@ -1178,6 +1195,7 @@
 
       out.push({
         year: y,
+        rounds: (season.events || []).length,
         perPlayer,
         winnerKey,
         winnerLabel,
