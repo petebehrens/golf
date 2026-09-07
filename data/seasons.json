@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-09-05T20:38:24.970Z",
+  "lastUpdated": "2026-09-07T03:01:31.281Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -10979,6 +10979,52 @@
               "pointsImported": {
                 "vsEric": 3,
                 "vsPete": 4
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-09-07-raindance-national-bn4d",
+          "date": "2026-09-07",
+          "course": "Raindance National",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Likely the most interesting and fun courses we've experienced. And Eric came out like a boss, only to suffer a back nine return to earth.",
+          "players": {
+            "eric": {
+              "front9": 41,
+              "back9": 52,
+              "total18": 93,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 3,
+                "vsJim": 3
+              }
+            },
+            "pete": {
+              "front9": 51,
+              "back9": 46,
+              "total18": 97,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 2,
+                "vsJim": 2
+              }
+            },
+            "jim": {
+              "front9": 55,
+              "back9": 48,
+              "total18": 103,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 2,
+                "vsPete": 0
               }
             }
           }
