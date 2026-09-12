@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-09-07T03:01:31.281Z",
+  "lastUpdated": "2026-09-12T21:51:03.055Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -11025,6 +11025,38 @@
               "pointsImported": {
                 "vsEric": 2,
                 "vsPete": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-09-11-granby-ranch-axx6",
+          "date": "2026-09-11",
+          "course": "Granby Ranch",
+          "isFinalRound": false,
+          "isPreseason": false,
+          "comments": "Jim came to play with some amazing shots that Pete just couldn't recover. All comes down to the final match.",
+          "players": {
+            "pete": {
+              "front9": 46,
+              "back9": 48,
+              "total18": 94,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsJim": 0
+              }
+            },
+            "jim": {
+              "front9": 45,
+              "back9": 47,
+              "total18": 92,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 3
               }
             }
           }
