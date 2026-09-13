@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-09-12T21:51:03.055Z",
+  "lastUpdated": "2026-09-13T23:57:23.416Z",
   "currentYear": 2026,
   "playerNames": {
     "eric": "Eric",
@@ -11057,6 +11057,52 @@
               "magicEraser": null,
               "pointsImported": {
                 "vsPete": 3
+              }
+            }
+          }
+        },
+        {
+          "id": "2026-09-13-grand-elk-y5w4",
+          "date": "2026-09-13",
+          "course": "Grand Elk",
+          "isFinalRound": true,
+          "isPreseason": false,
+          "comments": "",
+          "players": {
+            "eric": {
+              "front9": 50,
+              "back9": 52,
+              "total18": 102,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsPete": 0,
+                "vsJim": 0
+              }
+            },
+            "pete": {
+              "front9": 44,
+              "back9": 45,
+              "total18": 89,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 10,
+                "vsJim": 8
+              }
+            },
+            "jim": {
+              "front9": 47,
+              "back9": 53,
+              "total18": 100,
+              "eagle": false,
+              "handicap": null,
+              "magicEraser": null,
+              "pointsImported": {
+                "vsEric": 8,
+                "vsPete": 0
               }
             }
           }
