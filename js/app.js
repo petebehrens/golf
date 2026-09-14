@@ -311,8 +311,10 @@
       // Single chart, two lines
       const a = season.players[0];
       const b = season.players[1] || null;
-      wrap.innerHTML = `<div class="chart-card"><canvas id="pair-chart-only"></canvas></div>`;
+      wrap.innerHTML = `<div class="chart-card chart-zoomable" role="button" tabindex="0"
+        aria-label="Open ${PLAYER_NAMES[a]} vs ${b ? PLAYER_NAMES[b] : ""} detail"><canvas id="pair-chart-only"></canvas></div>`;
       drawPairChart("pair-chart-only", events, a, b, `${season.year} cumulative points`);
+      if (b) bindChartZoom(wrap.querySelector(".chart-zoomable"), season, events, a, b);
       return;
     }
 
@@ -323,12 +325,16 @@
       ["pete", "jim"],
     ];
     wrap.innerHTML = `<div class="pair-charts three">${pairs.map(([a, b], i) => `
-      <div class="pair-chart-wrap">
+      <div class="pair-chart-wrap chart-zoomable" role="button" tabindex="0"
+           aria-label="Open ${PLAYER_NAMES[a]} vs ${PLAYER_NAMES[b]} detail">
         <div class="pair-title">${PLAYER_NAMES[a]} vs ${PLAYER_NAMES[b]}</div>
         <div style="position:relative;height:180px"><canvas id="pair-chart-${i}"></canvas></div>
       </div>
     `).join("")}</div>`;
-    pairs.forEach(([a, b], i) => drawPairChart(`pair-chart-${i}`, events, a, b, null));
+    pairs.forEach(([a, b], i) => {
+      drawPairChart(`pair-chart-${i}`, events, a, b, null);
+      bindChartZoom(wrap.querySelectorAll(".chart-zoomable")[i], season, events, a, b);
+    });
   }
 
   function drawPairChart(canvasId, events, aKey, bKey, title) {
@@ -362,6 +368,118 @@
       },
     });
   }
+  // ---- Chart detail overlay -------------------------------------------------
+  // Tapping a season chart opens the same cumulative lines at full height, with
+  // every round labelled by course instead of the autoskipped dates. The whole
+  // season fits the width — even 38 rounds stay legible at 9px rotated — so the
+  // shape of the year reads in one look with no sideways scrolling.
+
+  function bindChartZoom(el, season, events, aKey, bKey) {
+    if (!el) return;
+    const open = () => openChartDetail(season, events, aKey, bKey);
+    el.addEventListener("click", open);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+    });
+  }
+
+  function closeChartDetail() {
+    const el = document.getElementById("chart-detail");
+    if (!el) return;
+    if (state.chartInstances["chart-detail-canvas"]) {
+      state.chartInstances["chart-detail-canvas"].destroy();
+      delete state.chartInstances["chart-detail-canvas"];
+    }
+    el.remove();
+    document.body.classList.remove("no-scroll");
+    document.removeEventListener("keydown", onDetailKey);
+  }
+
+  function onDetailKey(e) { if (e.key === "Escape") closeChartDetail(); }
+
+  function openChartDetail(season, events, aKey, bKey) {
+    closeChartDetail();
+    if (!events.length) return;
+
+    const overlay = document.createElement("div");
+    overlay.id = "chart-detail";
+    overlay.innerHTML = `
+      <div class="cd-sheet" role="dialog" aria-modal="true" aria-label="${PLAYER_NAMES[aKey]} vs ${PLAYER_NAMES[bKey]} detail">
+        <div class="cd-head">
+          <div>
+            <div class="cd-title">${PLAYER_NAMES[aKey]} vs ${PLAYER_NAMES[bKey]}</div>
+            <div class="cd-sub muted small">${season.year} &middot; ${events.length} rounds &middot; cumulative points</div>
+            <div class="cd-legend">
+              <span><i style="background:${PLAYER_COLORS[aKey]}"></i>${PLAYER_NAMES[aKey]}</span>
+              <span><i style="background:${PLAYER_COLORS[bKey]}"></i>${PLAYER_NAMES[bKey]}</span>
+            </div>
+          </div>
+          <button class="cd-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="cd-scroll"><div class="cd-plot"><canvas id="chart-detail-canvas"></canvas></div></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.body.classList.add("no-scroll");
+
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeChartDetail(); });
+    overlay.querySelector(".cd-close").addEventListener("click", closeChartDetail);
+    document.addEventListener("keydown", onDetailKey);
+
+    drawDetailChart(events, aKey, bKey);
+    overlay.querySelector(".cd-close").focus();
+  }
+
+  function drawDetailChart(events, aKey, bKey) {
+    const aOppKey = "vs" + capitalize(bKey);
+    const bOppKey = "vs" + capitalize(aKey);
+    const labels = events.map((e) => e.course || "—");
+    const aSeries = [], bSeries = [], perRound = [];
+    let aTotal = 0, bTotal = 0;
+    for (const ev of events) {
+      const aPts = (ev.players[aKey] && ev.players[aKey].pointsImported && ev.players[aKey].pointsImported[aOppKey]) || 0;
+      const bPts = (ev.players[bKey] && ev.players[bKey].pointsImported && ev.players[bKey].pointsImported[bOppKey]) || 0;
+      aTotal += aPts; bTotal += bPts;
+      aSeries.push(aTotal); bSeries.push(bTotal);
+      perRound.push({ date: ev.date, course: ev.course, a: aPts, b: bPts, final: !!ev.isFinalRound });
+    }
+    const ctx = document.getElementById("chart-detail-canvas").getContext("2d");
+    state.chartInstances["chart-detail-canvas"] = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          { label: PLAYER_NAMES[aKey], data: aSeries, borderColor: PLAYER_COLORS[aKey], backgroundColor: PLAYER_COLORS[aKey] + "22", tension: 0.2, borderWidth: 2.5, pointRadius: 3 },
+          { label: PLAYER_NAMES[bKey], data: bSeries, borderColor: PLAYER_COLORS[bKey], backgroundColor: PLAYER_COLORS[bKey] + "22", tension: 0.2, borderWidth: 2.5, pointRadius: 3 },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        layout: { padding: { right: 6, left: 2 } },   // keep the last course label off the edge
+        plugins: {
+          legend: { display: false },   // drawn in the header so it doesn't scroll with the plot
+          tooltip: {
+            callbacks: {
+              title: (items) => {
+                const r = perRound[items[0].dataIndex];
+                return `${formatShortDate(r.date)} · ${r.course || "—"}${r.final ? " · Final ×2" : ""}`;
+              },
+              label: (item) => `${item.dataset.label}: ${formatPts(item.parsed.y)} total`,
+              afterBody: (items) => {
+                const r = perRound[items[0].dataIndex];
+                return `This round: ${PLAYER_NAMES[aKey]} ${formatPts(r.a)}, ${PLAYER_NAMES[bKey]} ${formatPts(r.b)}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: { ticks: { maxRotation: 90, minRotation: 90, autoSkip: false, font: { size: 9 } }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { precision: 0, font: { size: 11 } } },
+        },
+      },
+    });
+  }
+
   function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function drawTotalsGrid(season, result) {
