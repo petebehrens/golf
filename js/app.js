@@ -226,11 +226,20 @@
     drawEventsTable(season);
   }
 
+  // A season is "done" — title decided, standings frozen — once its final round
+  // is in. Marking a round Final is the explicit signal (it's also the round whose
+  // points double), so entering it settles the year without waiting on the calendar.
+  function seasonHasFinalRound(year) {
+    const season = (state.data && state.data.seasons) ? state.data.seasons[String(year)] : null;
+    return !!(season && (season.events || []).some((ev) => ev.isFinalRound));
+  }
+
   function isPastSeason(year) {
-    // A season is "past" if the year is less than current OR the current date is past Sept-end
+    // Past if the year is behind us, its final round has been played, or Sept has run out.
     const today = new Date();
     if (year < today.getFullYear()) return true;
-    // Same year: consider "past" only after Sept 30
+    if (seasonHasFinalRound(year)) return true;
+    // Same year, no final round entered: fall back to "past" only after Sept 30
     return year === today.getFullYear() && (today.getMonth() > 8 || (today.getMonth() === 8 && today.getDate() >= 30));
   }
 
