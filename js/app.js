@@ -383,6 +383,27 @@
     });
   }
 
+  // Two stacked tick lines (course over date) need about twice the horizontal room
+  // per round, which a phone doesn't have — there the two run together on one line.
+  function detailTwoLine() { return window.innerWidth >= 720; }
+
+  let detailCtx = null;       // { events, aKey, bKey, twoLine } while the overlay is open
+  let detailResizeTimer = null;
+
+  function onDetailResize() {
+    if (!detailCtx) return;
+    clearTimeout(detailResizeTimer);
+    detailResizeTimer = setTimeout(() => {
+      // Only rebuild when the label layout actually flips (e.g. the phone rotates)
+      if (!detailCtx || detailTwoLine() === detailCtx.twoLine) return;
+      if (state.chartInstances["chart-detail-canvas"]) {
+        state.chartInstances["chart-detail-canvas"].destroy();
+        delete state.chartInstances["chart-detail-canvas"];
+      }
+      drawDetailChart(detailCtx.events, detailCtx.aKey, detailCtx.bKey);
+    }, 150);
+  }
+
   function closeChartDetail() {
     const el = document.getElementById("chart-detail");
     if (!el) return;
@@ -391,8 +412,11 @@
       delete state.chartInstances["chart-detail-canvas"];
     }
     el.remove();
+    detailCtx = null;
+    clearTimeout(detailResizeTimer);
     document.body.classList.remove("no-scroll");
     document.removeEventListener("keydown", onDetailKey);
+    window.removeEventListener("resize", onDetailResize);
   }
 
   function onDetailKey(e) { if (e.key === "Escape") closeChartDetail(); }
@@ -425,6 +449,7 @@
     overlay.querySelector(".cd-close").addEventListener("click", closeChartDetail);
     document.addEventListener("keydown", onDetailKey);
 
+    window.addEventListener("resize", onDetailResize);
     drawDetailChart(events, aKey, bKey);
     overlay.querySelector(".cd-close").focus();
   }
@@ -432,7 +457,14 @@
   function drawDetailChart(events, aKey, bKey) {
     const aOppKey = "vs" + capitalize(bKey);
     const bOppKey = "vs" + capitalize(aKey);
-    const labels = events.map((e) => e.course || "—");
+    // Desktop stacks course over date as two parallel vertical lines; a phone
+    // runs them together as one longer line, which costs height instead of width.
+    const twoLine = detailTwoLine();
+    const labels = events.map((e) => {
+      const course = e.course || "—";
+      const date = formatShortDate(e.date);
+      return twoLine ? [course, date] : `${course} · ${date}`;
+    });
     const aSeries = [], bSeries = [], perRound = [];
     let aTotal = 0, bTotal = 0;
     for (const ev of events) {
@@ -442,6 +474,7 @@
       aSeries.push(aTotal); bSeries.push(bTotal);
       perRound.push({ date: ev.date, course: ev.course, a: aPts, b: bPts, final: !!ev.isFinalRound });
     }
+    detailCtx = { events, aKey, bKey, twoLine };
     const ctx = document.getElementById("chart-detail-canvas").getContext("2d");
     state.chartInstances["chart-detail-canvas"] = new Chart(ctx, {
       type: "line",
