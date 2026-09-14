@@ -1091,25 +1091,23 @@
       if (holders.length > 1) tieYears.push(s.year);
     }
     const fmtYears = (arr) => arr.length ? arr.join(", ") : "—";
-    document.getElementById("title-card").innerHTML = `
-      <div class="lt-card player-card eric">
-        <div class="lt-name">Eric</div>
-        <div class="lt-count">${perPlayerYears.eric.length}</div>
-        <div class="lt-label muted">${perPlayerYears.eric.length === 1 ? "title" : "titles"}</div>
-        <div class="lt-years muted small">${fmtYears(perPlayerYears.eric)}</div>
-      </div>
-      <div class="lt-card player-card pete">
-        <div class="lt-name">Pete</div>
-        <div class="lt-count">${perPlayerYears.pete.length}</div>
-        <div class="lt-label muted">${perPlayerYears.pete.length === 1 ? "title" : "titles"}</div>
-        <div class="lt-years muted small">${fmtYears(perPlayerYears.pete)}</div>
-      </div>
-      <div class="lt-card player-card jim">
-        <div class="lt-name">Jim</div>
-        <div class="lt-count">${perPlayerYears.jim.length}</div>
-        <div class="lt-label muted">${perPlayerYears.jim.length === 1 ? "title" : "titles"}</div>
-        <div class="lt-years muted small">${fmtYears(perPlayerYears.jim)}</div>
-      </div>
+
+    // Most titles first. Equal counts keep the usual player order, so the tiles
+    // only move when the standing actually changes. Ties tile always sits last.
+    const ranked = PLAYER_ORDER.slice().sort((a, b) => {
+      const d = perPlayerYears[b].length - perPlayerYears[a].length;
+      return d !== 0 ? d : PLAYER_ORDER.indexOf(a) - PLAYER_ORDER.indexOf(b);
+    });
+    document.getElementById("title-card").innerHTML = ranked.map((pk) => {
+      const years = perPlayerYears[pk];
+      return `
+      <div class="lt-card player-card ${pk}">
+        <div class="lt-name">${PLAYER_NAMES[pk]}</div>
+        <div class="lt-count">${years.length}</div>
+        <div class="lt-label muted">${years.length === 1 ? "title" : "titles"}</div>
+        <div class="lt-years muted small">${fmtYears(years)}</div>
+      </div>`;
+    }).join("") + `
       <div class="lt-card lt-tie">
         <div class="lt-name">Ties</div>
         <div class="lt-count">${tieYears.length}</div>
